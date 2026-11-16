@@ -214,3 +214,8 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Gerbang: lihat `docs/sessions/X1.md`.
 - Sisa: Caddy, systemd, backup timer, dan webhook Scalev belum diuji di VPS asli.
 - Pertanyaan untuk owner: domain dan versi Ubuntu di VPS; apakah deploy key read-only dipakai untuk clone.
+
+## Merge X1 (paket deploy VPS) oleh orchestrator (2026-11-16)
+- Merge `claude/x1-deploy`: `pnpm db:migrate` (checksum, urutan, transaksi per file), `supabase/bootstrap/`, `deploy/` (Caddy, systemd web+worker, backup+timer, env.example, sql/roles.sql), `GET /api/v1/health`, runbook `docs/DEPLOYMENT-VPS.md`. Migrasi diuji agen di PostgreSQL 16 nyata.
+- Gerbang orchestrator: typecheck 0, lint 0, unit 1580 + 3 skip, db 369, e2e mock 352, live 38, admin 20, audit bersih.
+- Belum diuji di VPS asli: Caddy, systemd, backup/restore, webhook Scalev.
