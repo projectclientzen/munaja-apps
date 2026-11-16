@@ -1,0 +1,6 @@
+[Unit]
+Description=Munaja database backup
+
+[Service]
+Type=oneshot
+ExecStart=/opt/munaja/app/deploy/backup.sh

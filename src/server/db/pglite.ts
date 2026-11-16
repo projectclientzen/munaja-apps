@@ -5,7 +5,7 @@ import type { Db, Queryable } from "./types";
 /**
  * PostgreSQL inside the Node process (PGlite). For tests and for running the live app without Docker.
  * It is NOT a production database: it forgets everything on restart, and it stands in for Supabase Auth with
- * the stub in supabase/stubs/auth_stub.sql. `getDb()` refuses it unless TAHAJUD_ALLOW_TEST_DB=true.
+ * the bootstrap in supabase/bootstrap/00_roles_auth.sql. `getDb()` refuses it unless TAHAJUD_ALLOW_TEST_DB=true.
  */
 export interface PgliteDb extends Db {
   /** Move the database clock (tests only). Null follows real time again. */
@@ -37,7 +37,7 @@ export async function createPgliteDb(opts: PgliteOptions = {}): Promise<PgliteDb
   )) as typeof import("@electric-sql/pglite");
   const dir = opts.supabaseDir ?? join(process.cwd(), "supabase");
   const pg = new PGlite();
-  await pg.exec(readFileSync(join(dir, "stubs", "auth_stub.sql"), "utf8"));
+  await pg.exec(readFileSync(join(dir, "bootstrap", "00_roles_auth.sql"), "utf8"));
   for (const f of readdirSync(join(dir, "migrations"))
     .filter((x) => x.endsWith(".sql"))
     .sort()) {
