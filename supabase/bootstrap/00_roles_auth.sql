@@ -1,5 +1,5 @@
--- Local stand-in for the parts of Supabase that migrations depend on.
--- Used by tests (PGlite) only. NEVER run this on a real Supabase project: it already has all of this.
+-- Roles and schema the migrations depend on (anon, authenticated, service_role, auth.uid()). Supabase provides these itself.
+-- Run by `pnpm db:migrate` on plain PostgreSQL (VPS) and by tests (PGlite). Idempotent. NEVER run it on a Supabase project.
 
 do $$ begin
   if not exists (select 1 from pg_roles where rolname = 'anon') then create role anon nologin; end if;

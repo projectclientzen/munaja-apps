@@ -207,3 +207,15 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Merge `claude/t9-fix` (`24c3829`): F1..F11 dari `docs/AUDIT-FABLE-2026-11-14.md` (gerbang atomik + jeda bertingkat, batas IP hanya hitung gagal, tautan entitlement ke akun lama, kunci terpisah PHONE_HASH_KEY/MFA_ENC_KEY, Secure cookie paksa, normalisasi 620, sweep waktu bayar, APP_BASE_URL wajib, SHA Tanzil dipin), B: approve manual diganti "Cek ulang ke Scalev", C: khatam di ekspor + 517 wilayah (migration 20261118010000, 20261118020000).
 - Gerbang orchestrator di hasil gabungan: typecheck 0, lint 0, unit 1573 + 3 skip, db 362, e2e mock 352, live 38, admin 20, audit bersih.
 - Sisa: F5 alat rotasi hash HP untuk order lama; nama field waktu bayar Scalev NEEDS_VERIFICATION; jalur CS untuk `needs_cs_review`; nilai PROV baru (jeda 1/2/5/15 menit, jendela enrol MFA 24 jam).
+
+## X1 (branch `claude/x1-deploy`, 2026-11-16)
+- Dikerjakan: runner migrasi (`scripts/db-migrate.ts`), bootstrap dipindah ke `supabase/bootstrap/00_roles_auth.sql`, folder `deploy/`, endpoint health, runbook `docs/DEPLOYMENT-VPS.md`.
+- Temuan: `service_role` memakai BYPASSRLS, hanya superuser yang boleh membuatnya. Maka `roles.sql` (dijalankan superuser) membuat tiga role itu, dan `munaja_owner` bukan superuser.
+- Gerbang: lihat `docs/sessions/X1.md`.
+- Sisa: Caddy, systemd, backup timer, dan webhook Scalev belum diuji di VPS asli.
+- Pertanyaan untuk owner: domain dan versi Ubuntu di VPS; apakah deploy key read-only dipakai untuk clone.
+
+## Merge X1 (paket deploy VPS) oleh orchestrator (2026-11-16)
+- Merge `claude/x1-deploy`: `pnpm db:migrate` (checksum, urutan, transaksi per file), `supabase/bootstrap/`, `deploy/` (Caddy, systemd web+worker, backup+timer, env.example, sql/roles.sql), `GET /api/v1/health`, runbook `docs/DEPLOYMENT-VPS.md`. Migrasi diuji agen di PostgreSQL 16 nyata.
+- Gerbang orchestrator: typecheck 0, lint 0, unit 1580 + 3 skip, db 369, e2e mock 352, live 38, admin 20, audit bersih.
+- Belum diuji di VPS asli: Caddy, systemd, backup/restore, webhook Scalev.

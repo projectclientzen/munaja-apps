@@ -1,0 +1,23 @@
+[Unit]
+Description=Munaja worker (jobs: prayer times, notifications, Scalev verification)
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=munaja
+Group=munaja
+WorkingDirectory=/opt/munaja/app
+EnvironmentFile=/etc/munaja/munaja.env
+Environment=NODE_ENV=production
+ExecStart=/opt/munaja/app/node_modules/.bin/tsx scripts/worker.ts
+Restart=on-failure
+RestartSec=10
+TimeoutStopSec=40
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

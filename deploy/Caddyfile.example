@@ -1,0 +1,27 @@
+# Copy to /etc/caddy/Caddyfile. Caddy gets and renews the HTTPS certificate by itself.
+# Set the domain in /etc/default/caddy or the caddy.service environment: MUNAJA_DOMAIN=munaja.example.com
+# (DNS A/AAAA record must already point at this server, ports 80 and 443 open.)
+{$MUNAJA_DOMAIN} {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		-Server
+	}
+
+	# TRUSTED_PROXY_HOPS=1 in the app: the app reads the client address as the last entry of X-Forwarded-For.
+	# Caddy appends the real peer address, and trusted_proxies is empty, so a header sent by a client is replaced.
+	reverse_proxy 127.0.0.1:3000 {
+		header_up X-Forwarded-For {remote_host}
+		header_up X-Forwarded-Proto {scheme}
+		header_up Host {host}
+	}
+
+	# The internal cron endpoint is for the worker and curl on this server only.
+	@internal path /api/internal/*
+	respond @internal 404
+}

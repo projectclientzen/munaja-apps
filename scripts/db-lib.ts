@@ -10,7 +10,7 @@ import { PGlite } from "@electric-sql/pglite";
 const ROOT = join(import.meta.dirname, "..", "supabase");
 
 export const MIGRATIONS_DIR = join(ROOT, "migrations");
-export const STUB_FILE = join(ROOT, "stubs", "auth_stub.sql");
+export const STUB_FILE = join(ROOT, "bootstrap", "00_roles_auth.sql");
 export const SEED_FILE = join(ROOT, "seed.sql");
 
 export const migrationFiles = (): string[] =>

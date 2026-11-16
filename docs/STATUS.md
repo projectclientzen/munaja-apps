@@ -58,3 +58,12 @@ Spesifikasi berlaku: `docs/PRD-v1.2.md`
 | Admin | MFA admin | REAL | Reset mandiri menolak akun ber-peran. Enrol pertama hanya 24 jam sejak peran diberikan (PROVISIONAL), reset super_admin membuka jendela lagi |
 | Integrasi | Sweep Scalev | REAL, NEEDS_VERIFICATION | Jendela memakai waktu bayar bila ada. Nama field waktu bayar (`paid_time`, `payment_time`, `paid_at`) adalah tebakan parser, cadangan `createdAt` |
 | Integrasi | Checksum Tanzil | REAL | SHA-256 teks dan metadata dipin di `scripts/import-quran.ts`, diuji terhadap berkas di disk |
+
+## X1 (16 Nov 2026): paket deploy VPS
+| Area | Fitur | Status | Catatan |
+|------|-------|--------|---------|
+| Deploy | Runner migrasi `pnpm db:migrate` | REAL | Diuji di PostgreSQL 16 nyata (apt, lokal) dan PGlite. Checksum, urutan, satu transaksi per file, `--seed` tanpa wilayah DEMO, `--status` |
+| Deploy | Role DB `deploy/sql/roles.sql` | REAL (PostgreSQL 16 lokal) | `munaja_owner` (migrasi), `munaja_app` (runtime, bukan superuser, hanya SET ROLE ke authenticated/service_role). Dijalankan dua kali, sebelum dan sesudah migrasi |
+| Deploy | Caddy, systemd, backup timer | SIMULATED | File ditulis, belum dijalankan di VPS asli. Perlu dicoba Hermes |
+| Deploy | `GET /api/v1/health` | REAL | 200 `{"ok":true}` / 503 `{"ok":false}`, tanpa detail. Dicoba sebagai `munaja_app` di Postgres nyata |
+| Deploy | Runbook `docs/DEPLOYMENT-VPS.md` | SIMULATED | Langkah Caddy/systemd/Scalev belum diuji di server dan dashboard asli |
