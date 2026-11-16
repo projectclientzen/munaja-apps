@@ -1,13 +1,13 @@
 /* Munaja service worker. Caches the app shell and static files only. */
 // Bump VERSION to drop old caches on the next activate. shortcut: manual bump, automate with the build id later.
-const VERSION = "v1";
+const VERSION = "v2";
 const STATIC = `tahajud-static-${VERSION}`;
 const PAGES = `tahajud-pages-${VERSION}`;
 // Qur'an text files (public/quran/*.json) are static and versioned with the app: bump QURAN_VERSION if they change.
 const QURAN_VERSION = "v1";
 const QURAN = `tahajud-quran-${QURAN_VERSION}`;
 const KEEP = [STATIC, PAGES, QURAN];
-const PRECACHE = ["/offline.html", "/icons/icon.svg", "/icons/icon-192.png", "/icons/icon-512.png"];
+const PRECACHE = ["/offline.html", "/icons/favicon-64.png", "/icons/icon-192.png", "/icons/icon-512.png"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(STATIC).then((c) => c.addAll(PRECACHE)));

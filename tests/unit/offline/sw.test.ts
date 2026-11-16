@@ -116,9 +116,9 @@ describe("service worker: install, update, activate", () => {
   it("precaches the offline page and icons, and waits for the page before taking over", async () => {
     const w = boot(async () => okPage());
     await w.fire("install");
-    expect([...w.store.get("tahajud-static-v1")!.keys()]).toEqual([
+    expect([...w.store.get("tahajud-static-v2")!.keys()]).toEqual([
       "/offline.html",
-      "/icons/icon.svg",
+      "/icons/favicon-64.png",
       "/icons/icon-192.png",
       "/icons/icon-512.png",
     ]);
@@ -132,10 +132,10 @@ describe("service worker: install, update, activate", () => {
 
   it("removes old tahajud caches, keeps current ones and other sites' caches, then claims clients", async () => {
     const w = boot(async () => okPage());
-    for (const n of ["tahajud-static-v0", "tahajud-pages-v0", "tahajud-static-v1", "tahajud-pages-v1", "other-app"])
+    for (const n of ["tahajud-static-v1", "tahajud-pages-v1", "tahajud-static-v2", "tahajud-pages-v2", "other-app"])
       await w.caches.open(n);
     await w.fire("activate");
-    expect([...w.store.keys()].sort()).toEqual(["other-app", "tahajud-pages-v1", "tahajud-static-v1"]);
+    expect([...w.store.keys()].sort()).toEqual(["other-app", "tahajud-pages-v2", "tahajud-static-v2"]);
     expect(w.flags.claimed).toBe(1);
   });
 });
@@ -176,7 +176,7 @@ describe("service worker: navigation", () => {
     const a = await w.fire("fetch", { request: nav });
     expect(a.response!.body).toBe("<html>");
     await tick();
-    expect(w.puts).toEqual(["tahajud-pages-v1|https://app.test/dashboard"]); // query stripped from the key
+    expect(w.puts).toEqual(["tahajud-pages-v2|https://app.test/dashboard"]); // query stripped from the key
     online = false;
     const b = await w.fire("fetch", { request: req("/dashboard", { mode: "navigate" }) });
     expect(b.response!.body).toBe("<html>");

@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   appleWebApp: { capable: true, title: "Munaja", statusBarStyle: "default" },
   formatDetection: { telephone: false },
   icons: {
-    icon: [{ url: "/icons/icon.svg", type: "image/svg+xml" }],
+    icon: [{ url: "/icons/favicon-64.png", type: "image/png", sizes: "64x64" }],
     apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
   },
 };
