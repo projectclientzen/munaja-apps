@@ -132,3 +132,6 @@ Detail dan bukti: `docs/sessions/U2.md`. Semua yang berlabel PROVISIONAL menungg
 | T9-8 | `needs_cs_review` tidak punya jalur pelepasan di admin. CS memperbaiki data lewat Scalev lalu memakai Cek ulang, atau owner memutuskan jalurnya | Brief hanya meminta karantina dan tampil di admin | Tombol rilis (melanggar "tanpa approve manual") |
 | T9-9 | Sweep: jendela 72 jam/14 hari memakai waktu bayar bila ada, cadangan `createdAt`. Daftar Scalev diurut waktu dibuat, jadi pembacaan berhenti hanya pada halaman yang seluruhnya di luar jendela (batas 8 halaman tetap) | Order lama yang baru dibayar bisa ada di halaman dalam | Berhenti saat sebagian halaman di luar jendela (celah F9) |
 | T9-10 | Wilayah: migration data yang dihasilkan skrip (`pnpm db:regions`) dari JSON, bukan skrip yang memanggil database | Idempoten, ikut jalur migration, teruji di PGlite | Skrip memakai DATABASE_URL |
+
+## 2026-11-16: brand
+- Logo owner bertuliskan "Munajaa" (dua a); owner: "pake double a gak masalah". Nama tampil di UI tetap "Munaja" sampai owner memastikan apakah nama app juga diganti.
