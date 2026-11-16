@@ -367,3 +367,13 @@ describe("accepting an event", () => {
     }
   });
 });
+
+describe("SCALEV-ALIAS /api/webhooks/scalev (path saved in the Scalev dashboard)", () => {
+  it("uses the same handler: no signature is refused with 401 or 503, never 2xx", async () => {
+    const { POST: aliasPost } = await import("@/app/api/webhooks/scalev/route");
+    const res = await aliasPost(
+      new Request("http://localhost/api/webhooks/scalev", { method: "POST", body: JSON.stringify({ event: "x" }) }),
+    );
+    expect([401, 503]).toContain(res.status);
+  });
+});

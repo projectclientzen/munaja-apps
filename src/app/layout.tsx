@@ -19,10 +19,10 @@ const amiriQuran = Amiri_Quran({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Munaja", template: "%s | Munaja" },
+  title: { default: "Munajaa", template: "%s | Munajaa" },
   description: "Pendamping ibadah malam dari NgajiGaes.",
-  applicationName: "Munaja",
-  appleWebApp: { capable: true, title: "Munaja", statusBarStyle: "default" },
+  applicationName: "Munajaa",
+  appleWebApp: { capable: true, title: "Munajaa", statusBarStyle: "default" },
   formatDetection: { telephone: false },
   icons: {
     icon: [{ url: "/icons/favicon-64.png", type: "image/png", sizes: "64x64" }],
