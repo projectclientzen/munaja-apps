@@ -49,11 +49,4 @@ Keputusan owner 13 Nov 2026: N1 sampai N5 dipakai apa adanya (Witir memang 2 nia
 
 Keputusan owner 17 Nov 2026: item `tahlil_tambahan` (Level 1, opsional) dihapus dari konten.
 
-## Latin Ayat Seribu Dinar (`content/quran-latin.v1.json` v1.0.0, dari owner 17 Nov 2026), status `in_review`
-Disalin apa adanya. Teks Arab yang dikirim owner TIDAK dipakai: ayat tetap dari Tanzil (aturan CLAUDE.md). Temuan, belum diterapkan:
-| # | Temuan | Usulan |
-|---|--------|--------|
-| L1 | "min aisu" | Lazimnya "min haitsu" (حَيْثُ) |
-| L2 | "yaj al-lahu", "ja alallahu", "syai in" | Penanda 'ain biasanya ditulis "yaj'al", "ja'alallahu", "syai'in" |
-| L3 | "baligu" | Lazimnya "baalighu" (بَالِغُ) |
-| L4 | Gaya beda dengan niat (aa/â) | Opsional disamakan |
+Keputusan owner 17 Nov 2026: Latin Ayat Seribu Dinar TIDAK dipakai (risiko salah alih aksara). Lembar hanya menampilkan teks Arab Tanzil. Commit 9b5b8b0 di-revert.
