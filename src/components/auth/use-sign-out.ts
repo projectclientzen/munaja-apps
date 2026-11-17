@@ -6,6 +6,7 @@ import { useAuth } from "@/components/providers/auth-provider";
 import { useData } from "@/components/providers/data-provider";
 import { PLANNER_KEY } from "@/components/settings/planner-prefs";
 import { purgeUser } from "@/offline";
+import { stopRemindersOnSignOut } from "@/components/notifications/enable-reminders";
 
 /**
  * Sign out of this device: stop syncing, end the session, delete this user's local database
@@ -13,9 +14,11 @@ import { purgeUser } from "@/offline";
  */
 export function useSignOut() {
   const { auth, refresh } = useAuth();
-  const { userId, shutdown } = useData();
+  const { userId, shutdown, layer } = useData();
   const router = useRouter();
   return React.useCallback(async () => {
+    // Before the session ends: the server row can only be removed while still signed in.
+    await stopRemindersOnSignOut(layer, userId);
     shutdown();
     await auth?.logout();
     await purgeUser(userId);
@@ -28,5 +31,5 @@ export function useSignOut() {
     }
     await refresh();
     router.replace("/login");
-  }, [auth, refresh, router, shutdown, userId]);
+  }, [auth, layer, refresh, router, shutdown, userId]);
 }

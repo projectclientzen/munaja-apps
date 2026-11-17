@@ -187,3 +187,23 @@ export function EnableReminders({ onChange }: { onChange?: () => void }) {
     </div>
   );
 }
+
+/**
+ * Called on sign-out, while the session is still valid: removes this browser's push subscription for the user who is
+ * leaving, so a shared phone does not keep showing that person's reminders to the next one. Never throws.
+ */
+export async function stopRemindersOnSignOut(layer: { mode: "mock" | "live" } | null, userId: string): Promise<void> {
+  if (!layer || typeof window === "undefined") return;
+  try {
+    await disableReminders({
+      mode: layer.mode,
+      push: (layer as Partial<LiveExtras>).push,
+      permission: () => ("Notification" in window ? Notification.permission : null),
+      requestPermission: () => Promise.resolve("denied" as NotificationPermission),
+      registration,
+      store: makeStore(userId),
+    });
+  } catch {
+    /* sign-out goes on: the server also drops subscriptions that push services report as gone */
+  }
+}

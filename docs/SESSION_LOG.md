@@ -232,3 +232,9 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Sisa: uji manual di HP nyata (Android Chrome, iPhone PWA) setelah VAPID produksi diisi; logout belum otomatis unsubscribe push di browser; bedtime menunggu bank pesan owner.
 - Pertanyaan untuk owner: lihat `docs/sessions/N1.md`.
 
+
+## Merge N1 (pengingat Web Push) oleh orchestrator (2026-11-17)
+- Merge `claude/n1-push` (`7b6ae0e`): handler push + notificationclick di SW (path relatif saja), `GET /api/v1/push/public-key`, komponen EnableReminders (dashboard, /settings, /notifications; izin setelah ketuk; iOS non-standalone diarahkan pasang dulu), pesan tahajud/Subuh/Al-Kahfi dua varian bergantian (disetujui owner), bedtime disembunyikan di live.
+- Tambahan orchestrator: logout menghapus langganan push browser + baris server sebelum sesi berakhir (HP dipakai bergantian tidak menerima pengingat akun sebelumnya).
+- Gerbang: typecheck 0, lint 0, unit 1619 + 3 skip, db 370, e2e mock 366, live 40, admin 20, audit bersih.
+- Belum teruji: push nyata ke HP (butuh VAPID produksi di server).
