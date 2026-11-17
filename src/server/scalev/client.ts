@@ -54,7 +54,7 @@ export interface ScalevOrder {
   /** ISO time the order was created, when Scalev says. */
   createdAt: string | null;
   /**
-   * ISO time the order was paid. NEEDS_VERIFICATION: the field name is not in the Scalev docs we have, so the parser
+   * ISO time the order was paid. Live detail (17 Nov 2026) uses `paid_time`; the parser
    * tries `paid_time`, `payment_time` and `paid_at`. The sweep window uses this, and falls back to `createdAt`.
    */
   paidAt: string | null;
@@ -131,7 +131,7 @@ function orderFrom(o: Record<string, unknown>): ScalevOrder | null {
       if (!line) return [];
       return [{ variantId: str(line.variant), sku: str(line.variant_sku), quantity: num(line.quantity) ?? 1 }];
     }),
-    createdAt: str(o.created_at) ?? str(o.created_time),
+    createdAt: str(o.created_at) ?? str(o.created_time) ?? str(o.draft_time),
     paidAt: str(o.paid_time) ?? str(o.payment_time) ?? str(o.paid_at),
   };
 }
@@ -158,7 +158,7 @@ function summaryFrom(o: Record<string, unknown>): ScalevOrder | null {
     addressEmail: null,
     addressPhone: null,
     orderlines: [],
-    createdAt: str(o.created_at) ?? str(o.created_time),
+    createdAt: str(o.created_at) ?? str(o.created_time) ?? str(o.draft_time),
     paidAt: str(o.paid_time) ?? str(o.payment_time) ?? str(o.paid_at),
   };
 }
