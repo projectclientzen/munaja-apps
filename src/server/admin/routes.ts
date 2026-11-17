@@ -29,7 +29,8 @@ const revokeBody = z.object({ user_id: z.string(), role: z.enum(ADMIN_ROLES), re
 const resetBody = z.object({ user_id: z.string(), reason: text(500) }).strict();
 const blockBody = z.object({ blocked: z.boolean(), reason: text(500) }).strict();
 const phoneBody = z.object({ phone: text(40) }).strict();
-const staffCreateBody = z.object({ email: text(254), display_name: text(60).optional(), reason: text(500) }).strict();
+const staffCreateBody = z.object({ email: text(254), display_name: text(60).optional(), starting_level: z.number().int().min(1).max(3).optional(), reason: text(500) }).strict();
+const staffLevelBody = z.object({ starting_level: z.number().int().min(1).max(3), reason: text(500) }).strict();
 
 const uuid = (v: string | undefined): string => {
   if (!v || !UUID_RE.test(v)) throw new AdminError("NOT_FOUND");
@@ -374,7 +375,7 @@ export const ROUTES: Def[] = [
     perm: "staff.manage",
     handler: async (c) => {
       const b = await body(c, staffCreateBody);
-      const made = await rpc<{ user_id: string; entitlement: unknown }>(c, "staff.manage", "admin_staff_create", ["text", "text", "text"], [normalizeEmail(b.email), b.display_name ?? null, b.reason], { now: true });
+      const made = await rpc<{ user_id: string; entitlement: unknown }>(c, "staff.manage", "admin_staff_create", ["text", "text", "text", "int"], [normalizeEmail(b.email), b.display_name ?? null, b.reason, b.starting_level ?? 3], { now: true });
       // The account exists now and cannot sign in. The link is the only way to choose a password. If making the link
       // fails, the account stays and the staff screen can issue a new link.
       const link = await issueLink(c, made.user_id, b.reason, "staff.manage");
@@ -389,6 +390,16 @@ export const ROUTES: Def[] = [
     handler: async (c) => {
       const b = await body(c, reasonBody);
       return rpc(c, "staff.manage", "admin_staff_revoke", ["uuid", "text"], [uuid(c.params.id), b.reason], { now: true });
+    },
+  },
+  {
+    method: "POST",
+    path: "staff/:id/level",
+    access: "admin",
+    perm: "staff.manage",
+    handler: async (c) => {
+      const b = await body(c, staffLevelBody);
+      return rpc(c, "staff.manage", "admin_staff_set_level", ["uuid", "int", "text"], [uuid(c.params.id), b.starting_level, b.reason], { now: true });
     },
   },
 

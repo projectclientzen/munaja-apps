@@ -10,29 +10,140 @@ import { Definition, Empty, Field, Load, Notice, PageTitle, ReasonForm, Section,
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 // ---------- staff accounts ----------
+const LEVELS = [
+  { value: 1, label: "Level 1 — Fondasi" },
+  { value: 2, label: "Level 2 — Bertumbuh" },
+  { value: 3, label: "Level 3 — Istikamah" },
+] as const;
+
+function StaffCreateForm({ onCreated }: { onCreated: (link: { link: string; expires_at: string }, who: string) => void }) {
+  const [email, setEmail] = React.useState("");
+  const [name, setName] = React.useState("");
+  const [level, setLevel] = React.useState<number>(1);
+  const [reason, setReason] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const ready = email.trim().length > 0 && reason.trim().length >= 10;
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!ready || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const r = await adminFetch<{ link: string; expires_at: string }>("POST", "/staff", {
+        email: email.trim(),
+        display_name: name.trim() || undefined,
+        starting_level: level,
+        reason: reason.trim(),
+      });
+      onCreated(r, email.trim());
+      setEmail("");
+      setName("");
+      setLevel(1);
+      setReason("");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Gagal membuat akun.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <form onSubmit={submit} className="flex flex-col gap-3">
+      <p className="max-w-prose text-text-muted">Setelah dibuat, tautan atur password tampil sekali di sini. Kirim ke staf lewat WhatsApp.</p>
+      <Field id="staff-email" label="Email staf">
+        <input id="staff-email" type="email" className={inputClass} value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="off" />
+      </Field>
+      <Field id="staff-name" label="Nama (opsional)">
+        <input id="staff-name" className={inputClass} value={name} onChange={(e) => setName(e.target.value)} autoComplete="off" />
+      </Field>
+      <Field id="staff-level" label="Mulai dari level" hint="Level awal staf. Bisa berbeda per akun.">
+        <select id="staff-level" className={inputClass} value={level} onChange={(e) => setLevel(Number(e.target.value))}>
+          {LEVELS.map((l) => (
+            <option key={l.value} value={l.value}>
+              {l.label}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field id="staff-reason" label="Alasan membuat akun" hint="Minimal 10 karakter. Tercatat di audit log bersama namamu.">
+        <textarea id="staff-reason" className="min-h-24 py-2" style={{}} onChange={(e) => setReason(e.target.value)} value={reason} maxLength={500} />
+      </Field>
+      {error ? (
+        <Notice tone="bad" role="alert">
+          {error}
+        </Notice>
+      ) : null}
+      <div>
+        <Button type="submit" loading={busy} disabled={!ready}>
+          Buat akun dan tautan
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+function StaffLevelForm({ id, entitlementId, current, onChanged }: { id: string; entitlementId: string; current: number; onChanged: () => void }) {
+  const [level, setLevel] = React.useState<number>(current);
+  const [reason, setReason] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+  const [error, setError] = React.useState<string | null>(null);
+  const ready = reason.trim().length >= 10 && level >= 1 && level <= 3;
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!ready || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await adminFetch("POST", `/staff/${entitlementId}/level`, { starting_level: level, reason: reason.trim() });
+      onChanged();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Gagal mengubah level.");
+    } finally {
+      setBusy(false);
+    }
+  }
+  return (
+    <form onSubmit={submit} className="flex flex-col gap-3">
+      <Field id={`${id}-level`} label="Level" hint="Level awal baru untuk akun ini.">
+        <select id={`${id}-level`} className={inputClass} value={level} onChange={(e) => setLevel(Number(e.target.value))}>
+          {LEVELS.map((l) => (
+            <option key={l.value} value={l.value}>
+              {l.label}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field id={`${id}-reason`} label="Alasan" hint="Minimal 10 karakter. Tercatat di audit log bersama namamu.">
+        <textarea id={`${id}-reason`} className="min-h-24 py-2" onChange={(e) => setReason(e.target.value)} value={reason} maxLength={500} />
+      </Field>
+      {error ? (
+        <Notice tone="bad" role="alert">
+          {error}
+        </Notice>
+      ) : null}
+      <div>
+        <Button type="submit" variant="secondary" loading={busy} disabled={!ready}>
+          Simpan level
+        </Button>
+      </div>
+    </form>
+  );
+}
+
 export function StaffView() {
   const state = useAdminGet<any[]>("/staff");
   const [link, setLink] = React.useState<{ link: string; expires_at: string; who: string } | null>(null);
   const [open, setOpen] = React.useState<string | null>(null);
   return (
     <>
-      <PageTitle title="Staf" description="Akun tim NgajiGaes tanpa pembelian. Semua level terbuka, tidak dihitung di laporan pembeli. Kamu tidak menentukan password: staf membuatnya sendiri lewat tautan sekali pakai." />
+      <PageTitle title="Staf" description="Akun tim NgajiGaes tanpa pembelian. Pilih level awal per akun, tidak dihitung di laporan pembeli. Kamu tidak menentukan password: staf membuatnya sendiri lewat tautan sekali pakai." />
       {link ? <ShownOnce link={link.link} expiresAt={link.expires_at} who={link.who} onClose={() => setLink(null)} /> : null}
       <Section title="Buat akun staf">
-        <ReasonForm
-          id="staff-create"
-          buttonLabel="Buat akun dan tautan"
-          intro="Setelah dibuat, tautan atur password tampil sekali di sini. Kirim ke staf lewat WhatsApp."
-          fields={[
-            { key: "email", label: "Email staf", required: true },
-            { key: "name", label: "Nama (opsional)" },
-          ]}
-          reasonLabel="Alasan membuat akun"
-          onSubmit={async ({ reason, extra }) => {
-            const r = await adminFetch<{ link: string; expires_at: string }>("POST", "/staff", { email: extra.email, display_name: extra.name?.trim() || undefined, reason });
-            setLink({ link: r.link, expires_at: r.expires_at, who: extra.email ?? "staf" });
+        <StaffCreateForm
+          onCreated={(r, who) => {
+            setLink({ ...r, who });
+            state.reload();
           }}
-          onDone={state.reload}
         />
       </Section>
       <Section title="Daftar staf">
@@ -47,6 +158,7 @@ export function StaffView() {
                         <span className="flex flex-wrap items-center gap-2">
                           <span className="break-all font-semibold">{s.email}</span>
                           <Tag tone={s.status === "active" ? "good" : "bad"}>{s.status === "active" ? "Aktif" : "Dicabut"}</Tag>
+                          <Tag tone="info">Level {s.starting_level ?? 3}</Tag>
                           <Tag tone={s.has_password ? "good" : "warn"}>{s.has_password ? "Sudah punya password" : "Belum atur password"}</Tag>
                         </span>
                         <span className="text-helper text-text-muted">Dibuat {fmtDate(s.created_at)} oleh {s.granted_by_email ?? "-"}{s.revoked_at ? ` · dicabut ${fmtDate(s.revoked_at)}` : ""}</span>
@@ -59,6 +171,18 @@ export function StaffView() {
                     </div>
                     {open === s.entitlement_id ? (
                       <div className="flex flex-col gap-6 border-t border-border p-4">
+                        <div className="flex flex-col gap-2">
+                          <h3 className="font-semibold">Ubah level mulai</h3>
+                          <StaffLevelForm
+                            id={`staff-${s.entitlement_id}-level`}
+                            entitlementId={s.entitlement_id}
+                            current={s.starting_level ?? 3}
+                            onChanged={() => {
+                              setOpen(null);
+                              state.reload();
+                            }}
+                          />
+                        </div>
                         <div className="flex flex-col gap-2">
                           <h3 className="font-semibold">Tautan atur password baru</h3>
                           <ReasonForm id={`staff-${s.entitlement_id}-link`} buttonLabel="Buat tautan" intro="Tautan lama otomatis tidak berlaku." onSubmit={async ({ reason }) => {
