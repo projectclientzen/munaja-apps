@@ -66,7 +66,7 @@ describe("X8 schema: staff accounts, order tools, level bypass, report exclusion
     let entId: string;
 
     it("creates user + profile + staff_comp with no order, no password and no credentials row", async () => {
-      const r = await ok<{ user_id: string; entitlement: { id: string } }>("admin_staff_create", ["text", "text", "text", "timestamptz"], ["Tim@NgajiGaes.test", "Tim Satu", REASON, NOW], superId, SUP);
+      const r = await ok<{ user_id: string; entitlement: { id: string } }>("admin_staff_create", ["text", "text", "text", "int", "timestamptz"], ["Tim@NgajiGaes.test", "Tim Satu", REASON, 3, NOW], superId, SUP);
       staffId = r.user_id;
       entId = r.entitlement.id;
       const e = (await rows<any>(pg, "select * from public.access_entitlements where id = $1::uuid", [entId]))[0];
@@ -86,8 +86,8 @@ describe("X8 schema: staff accounts, order tools, level bypass, report exclusion
     });
 
     it("refuses a role that is not allowed, a short reason, a bad email, an existing account, and an email that already has an order", async () => {
-      const args = (email: string, reason = REASON) => [email, null, reason, NOW];
-      const T = ["text", "text", "text", "timestamptz"];
+      const args = (email: string, reason = REASON) => [email, null, reason, 3, NOW];
+      const T = ["text", "text", "text", "int", "timestamptz"];
       expect((await call("admin_staff_create", T, args("x1@ngajigaes.test"), supportId, ["content_admin"])).ok).toBe(false);
       expect((await call("admin_staff_create", T, args("x2@ngajigaes.test", "pendek"), superId, SUP)).ok).toBe(false);
       expect((await call("admin_staff_create", T, args("bukan-email"), superId, SUP)).ok).toBe(false);
@@ -100,7 +100,7 @@ describe("X8 schema: staff accounts, order tools, level bypass, report exclusion
     });
 
     it("rejects Arabic text in the display name (admin_text)", async () => {
-      const r = await call("admin_staff_create", ["text", "text", "text", "timestamptz"], ["ar@ngajigaes.test", "بسم الله", REASON, NOW], superId, SUP);
+      const r = await call("admin_staff_create", ["text", "text", "text", "int", "timestamptz"], ["ar@ngajigaes.test", "بسم الله", REASON, 3, NOW], superId, SUP);
       expect(r.ok).toBe(false);
     });
 
@@ -147,6 +147,23 @@ describe("X8 schema: staff accounts, order tools, level bypass, report exclusion
       expect(Number(before.active_users)).toBe(
         Number((await rows<{ n: number }>(pg, "select count(distinct user_id)::int as n from public.access_entitlements where status = 'active' and entitlement_type <> 'staff_comp' and user_id is not null"))[0]!.n),
       );
+    });
+
+    it("STAFF-LEVEL: the chosen starting level drives the dashboard, the level screen and the session, and can be edited", async () => {
+      const r = await ok<{ user_id: string; entitlement: { id: string } }>("admin_staff_create", ["text", "text", "text", "int", "timestamptz"], ["level1@ngajigaes.test", null, REASON, 1, NOW], superId, SUP);
+      const uid = r.user_id;
+      const lvl = async () => ({
+        cur: (await rows<{ j: any }>(pg, "select app_private.get_current_level($1::uuid, $2::timestamptz) as j", [uid, NOW]))[0]!.j.level,
+        prog: (await rows<{ j: any }>(pg, "select app_private.level_progress_json($1::uuid, $2::timestamptz) as j", [uid, NOW]))[0]!.j.current_level,
+        session: (await rows<{ n: number }>(pg, "select app_private.level_for_session($1::uuid, '2026-11-20'::date) as n", [uid]))[0]!.n,
+      });
+      expect(await lvl()).toEqual({ cur: 1, prog: 1, session: 1 });
+      expect((await call("admin_staff_set_level", ["uuid", "int", "text", "timestamptz"], [r.entitlement.id, 4, REASON, NOW], superId, SUP)).ok).toBe(false);
+      await ok("admin_staff_set_level", ["uuid", "int", "text", "timestamptz"], [r.entitlement.id, 2, REASON, NOW], superId, SUP);
+      expect(await lvl()).toEqual({ cur: 2, prog: 2, session: 2 });
+      expect(await rows(pg, "select 1 from public.admin_audit_logs where action = 'staff.level_changed' and entity_id = $1", [r.entitlement.id])).toHaveLength(1);
+      // The old overload without a level is gone.
+      expect(await rows(pg, "select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'app_private' and p.proname = 'admin_staff_create' and p.pronargs = 6")).toHaveLength(0);
     });
 
     it("can be revoked once, with a reason, and the level bypass ends with it", async () => {

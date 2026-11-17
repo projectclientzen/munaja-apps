@@ -86,10 +86,10 @@ describe("content: loader from content/amalan.v1.json", () => {
     for (const a of getLevelConfig(2).activities) expect(a.kind).toBe(a.type === "dhikr" ? "counter" : "checklist");
   });
 
-  it("marks optional items as not required (night tilawah, tahlil tambahan)", () => {
+  it("marks optional items as not required (night tilawah); tahlil tambahan removed by owner 17 Nov 2026", () => {
     const l1 = getLevelConfig(1).activities;
     expect(l1.find((a) => a.id === "night:tilawah")?.required).toBe(false);
-    expect(l1.find((a) => a.id === "night:tahlil_tambahan")?.required).toBe(false);
+    expect(l1.find((a) => a.id === "night:tahlil_tambahan")).toBeUndefined();
     expect(l1.find((a) => a.id === "post_fajr:pf_al_waqiah")?.required).toBe(true);
   });
 

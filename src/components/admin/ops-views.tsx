@@ -11,9 +11,9 @@ import { Definition, Empty, Field, Load, Notice, PageTitle, ReasonForm, Section,
 
 // ---------- staff accounts ----------
 const LEVELS = [
-  { value: 1, label: "Level 1 — Fondasi" },
-  { value: 2, label: "Level 2 — Bertumbuh" },
-  { value: 3, label: "Level 3 — Istikamah" },
+  { value: 1, label: "Level 1: Fondasi" },
+  { value: 2, label: "Level 2: Bertumbuh" },
+  { value: 3, label: "Level 3: Istikamah" },
 ] as const;
 
 function StaffCreateForm({ onCreated }: { onCreated: (link: { link: string; expires_at: string }, who: string) => void }) {

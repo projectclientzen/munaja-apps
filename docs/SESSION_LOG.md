@@ -219,3 +219,9 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Merge `claude/x1-deploy`: `pnpm db:migrate` (checksum, urutan, transaksi per file), `supabase/bootstrap/`, `deploy/` (Caddy, systemd web+worker, backup+timer, env.example, sql/roles.sql), `GET /api/v1/health`, runbook `docs/DEPLOYMENT-VPS.md`. Migrasi diuji agen di PostgreSQL 16 nyata.
 - Gerbang orchestrator: typecheck 0, lint 0, unit 1580 + 3 skip, db 369, e2e mock 352, live 38, admin 20, audit bersih.
 - Belum diuji di VPS asli: Caddy, systemd, backup/restore, webhook Scalev.
+
+## Merge 3 commit Hermes + review orchestrator (2026-11-17)
+- Diterapkan apa adanya lewat `git am` (isi migration identik dengan yang sudah applied di DB live): staff mulai level 1/2/3 + edit level (20261118120000, 130000), sembunyikan tahlil_tambahan (20261118140000), hapus tahlil_tambahan dari konten + seed (keputusan owner 17 Nov).
+- Perbaikan orchestrator di atasnya: migration 20261118150000 (dashboard/level screen staf sebelum sesi pertama kini memakai level pilihan, bukan selalu 3; satu helper `staff_level`; overload lama admin_staff_create tanpa level dihapus), label level tanpa em-dash, test DB admin-staff disesuaikan + test STAFF-LEVEL baru, test konten tahlil_tambahan.
+- Gerbang: typecheck 0, lint 0, unit 1583 + 3 skip, db 370, e2e mock 352, live 38, admin 20, audit bersih.
+- Deploy: server perlu `git pull --rebase` (commit Hermes sudah sama isinya) lalu `pnpm db:migrate` untuk 20261118150000.
