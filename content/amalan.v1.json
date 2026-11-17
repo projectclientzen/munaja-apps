@@ -319,15 +319,6 @@
           "required": true
         },
         {
-          "activity_key": "tahlil_tambahan",
-          "type": "dhikr",
-          "dhikr_ref": "tahlil",
-          "title": "Tahlil tambahan (opsional, total 300)",
-          "target": 200,
-          "unit": "kali",
-          "required": false
-        },
-        {
           "activity_key": "asma_rangkaian",
           "type": "dhikr",
           "dhikr_ref": "asma_rangkaian",
