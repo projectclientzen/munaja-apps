@@ -280,6 +280,39 @@ describe("push subscriptions over HTTP (SECURITY-04, SEC-14)", () => {
     expect(row.u).toBe(await env.userId("push-a@ngajigaes.test"));
   });
 
+  describe("GET /push/public-key", () => {
+    const saved = process.env.VAPID_PUBLIC_KEY;
+    afterAll(() => {
+      if (saved === undefined) delete process.env.VAPID_PUBLIC_KEY;
+      else process.env.VAPID_PUBLIC_KEY = saved;
+    });
+
+    it("needs a signed-in user", async () => {
+      const res = await env.browser().raw("/push/public-key");
+      expect(res.status).toBe(401);
+    });
+
+    it("answers NOT_AVAILABLE when VAPID is not configured", async () => {
+      delete process.env.VAPID_PUBLIC_KEY;
+      const res = await a.raw("/push/public-key");
+      expect(res.status).toBe(503);
+      expect((await res.json()).error.code).toBe("NOT_AVAILABLE");
+    });
+
+    it("gives the public key only, never cached", async () => {
+      process.env.VAPID_PUBLIC_KEY = " BPublicKeyForTest ";
+      process.env.VAPID_PRIVATE_KEY = "private-should-never-leak";
+      const res = await a.raw("/push/public-key");
+      expect(res.status).toBe(200);
+      expect(res.headers.get("cache-control")).toBe("private, no-store");
+      const text = await res.text();
+      expect(JSON.parse(text)).toEqual({ public_key: "BPublicKeyForTest" });
+      expect(text).not.toContain("private-should-never-leak");
+      await expect(a.data().push.getPublicKey()).resolves.toEqual({ public_key: "BPublicKeyForTest" });
+      delete process.env.VAPID_PRIVATE_KEY;
+    });
+  });
+
   it("the http client round-trips add and remove", async () => {
     const layer = a.data();
     const sub = await layer.push.addSubscription(SUB("a3"));

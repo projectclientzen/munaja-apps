@@ -23,6 +23,7 @@ import {
   preferencesUpdateSchema,
   profileSchema,
   profileUpdateSchema,
+  pushPublicKeySchema,
   pushSubscriptionRequestSchema,
   pushSubscriptionSchema,
   quranProgressListSchema,
@@ -558,6 +559,16 @@ export const h = {
     },
   }),
 
+  pushPublicKey: route({
+    auth: "user",
+    handler: async (c) => {
+      await requireActiveAccess(c);
+      // Public key only. The private key and subject never leave vapidFromEnv's callers.
+      const key = process.env.VAPID_PUBLIC_KEY?.trim();
+      if (!key) throw new ApiError("NOT_AVAILABLE", "Pengingat belum tersedia.");
+      return pushPublicKeySchema.parse({ public_key: key });
+    },
+  }),
   addPushSubscription: route({
     auth: "user",
     status: 201,

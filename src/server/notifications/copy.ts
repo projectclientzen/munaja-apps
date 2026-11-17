@@ -15,24 +15,42 @@ export interface NotificationContent {
   body: string;
 }
 
-/**
- * Fixed copy for the types that have no message bank. Plain Indonesian, short, no pressure (CLAUDE.md copy rules).
- * PROVISIONAL: written by the build agent, not by the owner. The notification CMS (T7) replaces it later.
- */
-export const DEFAULT_COPY: Partial<Record<NotificationType, NotificationContent>> = {
-  tahajud: {
-    title: "Waktunya bangun",
-    body: "Jadwal ibadah malammu dimulai. Pelan-pelan saja, mulai dari yang bisa.",
-  },
-  fajr: {
-    title: "Waktu Subuh masuk",
-    body: "Subuh sudah masuk. Lanjutkan rangkaian Subuhmu kapan siap.",
-  },
-  alkahfi: {
-    title: "Malam Jumat",
-    body: "Waktunya membaca Al-Kahfi. Bisa dibaca kapan saja sampai Jumat sore.",
-  },
+/** Fixed-copy types: two owner-approved variants each (owner decision 17 Nov 2026). Index 0 is variant A, 1 is B. */
+export type FixedCopyType = "tahajud" | "fajr" | "alkahfi";
+
+export const COPY_VARIANTS: Record<FixedCopyType, readonly [NotificationContent, NotificationContent]> = {
+  tahajud: [
+    { title: "Waktunya bangun", body: "Jadwal ibadah malammu dimulai. Pelan-pelan saja, mulai dari yang bisa." },
+    { title: "Saatnya bermunajat", body: "Sepertiga malam sudah tiba. Ambil wudhu, mulai dari dua rakaat." },
+  ],
+  fajr: [
+    { title: "Waktu Subuh masuk", body: "Lanjutkan rangkaian Subuhmu kapan siap." },
+    { title: "Subuh sudah tiba", body: "Yuk salat Subuh, lalu lanjutkan amalan pagimu." },
+  ],
+  alkahfi: [
+    { title: "Malam Jumat", body: "Waktunya membaca Al-Kahfi. Bisa dibaca kapan saja sampai Jumat sore." },
+    { title: "Jumat berkah", body: "Jangan lupa Al-Kahfi hari ini, bacanya bisa dicicil." },
+  ],
 };
+
+export function isFixedCopyType(type: NotificationType): type is FixedCopyType {
+  return type === "tahajud" || type === "fajr" || type === "alkahfi";
+}
+
+/** The user's calendar date (YYYY-MM-DD) of an instant in their timezone. */
+export function localDateOf(at: Date, tz: string): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(at);
+}
+
+/**
+ * Deterministic A/B pick: even day count since 1970-01-01 is A, odd is B. Counting days (not day-of-month) keeps the
+ * alternation unbroken across month ends. The same date always gives the same variant, so a retry never changes the text.
+ */
+export function pickCopy(type: FixedCopyType, localDate: string): NotificationContent {
+  const [y, m, d] = localDate.split("-").map(Number);
+  const days = Math.floor(Date.UTC(y!, m! - 1, d!) / 86_400_000);
+  return COPY_VARIANTS[type][days % 2 === 0 ? 0 : 1];
+}
 
 export interface BankTemplate {
   /** Stable key stored in notification_jobs.template_key: the template uuid, or "demo:<n>". */

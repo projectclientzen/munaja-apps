@@ -33,7 +33,7 @@ export const ACTIVATABLE = [
   ...["live", "live-out", "live-logout", "live-tick", "act-api", "act-ui", "reset", "chpw", "limit"].flatMap((k) =>
     PROJECTS.map((p) => `${k}-${p}@ngajigaes.test`),
   ),
-  ...["quran", "prayer", "push-a", "push-b", "origin", "del"].flatMap((k) =>
+  ...["quran", "prayer", "push-a", "push-b", "origin", "del", "n1"].flatMap((k) =>
     PROJECTS.map((p) => `t3c-${k}-${p}@ngajigaes.test`),
   ),
 ];

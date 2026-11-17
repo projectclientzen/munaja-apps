@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { errorMessage, useData } from "@/components/providers/data-provider";
+import { EnableReminders } from "@/components/notifications/enable-reminders";
 import { Button } from "@/components/ui/button";
 import type { NotificationPreferences } from "@/data";
 import { Field, Section, SaveNote, Switch, TextInput, type SaveState } from "./controls";
@@ -26,6 +27,8 @@ export function NotificationSection({
   const [note, setNote] = React.useState<SaveState>({ kind: "idle" });
   React.useEffect(() => setDraft(prefs), [prefs]);
 
+  // Bedtime has no owner-approved message bank yet, so outside the demo it is hidden and never scheduled.
+  const showBedtime = layer?.mode === "mock";
   const q = draft.quiet_hours;
   const timeOk = /^\d{2}:\d{2}$/.test(q.start) && /^\d{2}:\d{2}$/.test(q.end);
 
@@ -46,31 +49,43 @@ export function NotificationSection({
       title="Notifikasi"
       description="Pengingat bersifat usaha terbaik. Tetap pasang alarm di perangkat sebagai cadangan."
     >
+      <div className="flex flex-col gap-2 border-b border-border pb-4">
+        <EnableReminders />
+      </div>
       <form onSubmit={save} className="flex flex-col gap-3">
-        {TYPES.map(([key, label]) => (
-          <Switch
-            key={key}
-            label={label}
-            checked={draft[key].enabled}
-            onChange={(v) => setDraft({ ...draft, [key]: { ...draft[key], enabled: v } })}
-          />
-        ))}
-        <Field htmlFor="bedtime-offset" label="Pengingat tidur dikirim sebelum target tidur (menit)">
-          <TextInput
-            id="bedtime-offset"
-            type="number"
-            inputMode="numeric"
-            min={0}
-            max={240}
-            value={draft.bedtime.offset_minutes}
-            onChange={(e) =>
-              setDraft({
-                ...draft,
-                bedtime: { ...draft.bedtime, offset_minutes: Math.max(0, Math.floor(Number(e.target.value) || 0)) },
-              })
-            }
-          />
-        </Field>
+        {TYPES.map(([key, label]) =>
+          key === "bedtime" && !showBedtime ? (
+            <div key={key} className="flex min-h-12 flex-col justify-center" data-testid="bedtime-soon">
+              <span className="font-medium">{label}</span>
+              <span className="text-helper text-text-muted">Segera hadir.</span>
+            </div>
+          ) : (
+            <Switch
+              key={key}
+              label={label}
+              checked={draft[key].enabled}
+              onChange={(v) => setDraft({ ...draft, [key]: { ...draft[key], enabled: v } })}
+            />
+          ),
+        )}
+        {showBedtime ? (
+          <Field htmlFor="bedtime-offset" label="Pengingat tidur dikirim sebelum target tidur (menit)">
+            <TextInput
+              id="bedtime-offset"
+              type="number"
+              inputMode="numeric"
+              min={0}
+              max={240}
+              value={draft.bedtime.offset_minutes}
+              onChange={(e) =>
+                setDraft({
+                  ...draft,
+                  bedtime: { ...draft.bedtime, offset_minutes: Math.max(0, Math.floor(Number(e.target.value) || 0)) },
+                })
+              }
+            />
+          </Field>
+        ) : null}
         <div className="flex flex-col gap-3 border-t border-border pt-3">
           <Switch
             label="Jam tenang"

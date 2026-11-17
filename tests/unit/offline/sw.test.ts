@@ -31,6 +31,9 @@ function boot(fetchImpl: (req: FakeReq) => Promise<FakeResponse>) {
   const puts: string[] = [];
   const listeners: Record<string, (e: unknown) => void> = {};
   const flags = { skipWaiting: 0, claimed: 0 };
+  const shown: { title: string; options: Record<string, unknown> }[] = [];
+  const opened: string[] = [];
+  const windows: { url: string; focused: number; navigated: string[] }[] = [];
   const caches = {
     open: async (name: string) => {
       if (!store.has(name)) store.set(name, new Map());
@@ -64,9 +67,27 @@ function boot(fetchImpl: (req: FakeReq) => Promise<FakeResponse>) {
     skipWaiting: () => {
       flags.skipWaiting++;
     },
+    registration: {
+      showNotification: async (title: string, options: Record<string, unknown>) => {
+        shown.push({ title, options });
+      },
+    },
     clients: {
       claim: async () => {
         flags.claimed++;
+      },
+      matchAll: async () =>
+        windows.map((w) => ({
+          url: w.url,
+          focus: async () => {
+            w.focused++;
+          },
+          navigate: async (u: string) => {
+            w.navigated.push(u);
+          },
+        })),
+      openWindow: async (u: string) => {
+        opened.push(u);
       },
     },
   };
@@ -93,7 +114,7 @@ function boot(fetchImpl: (req: FakeReq) => Promise<FakeResponse>) {
     await wait;
     return { responded: respond !== undefined, response: respond ? await respond : undefined };
   };
-  return { store, puts, fire, flags, caches };
+  return { store, puts, fire, flags, caches, shown, opened, windows };
 }
 
 interface FakeReq {
@@ -116,7 +137,7 @@ describe("service worker: install, update, activate", () => {
   it("precaches the offline page and icons, and waits for the page before taking over", async () => {
     const w = boot(async () => okPage());
     await w.fire("install");
-    expect([...w.store.get("tahajud-static-v2")!.keys()]).toEqual([
+    expect([...w.store.get("tahajud-static-v3")!.keys()]).toEqual([
       "/offline.html",
       "/icons/favicon-64.png",
       "/icons/icon-192.png",
@@ -132,10 +153,10 @@ describe("service worker: install, update, activate", () => {
 
   it("removes old tahajud caches, keeps current ones and other sites' caches, then claims clients", async () => {
     const w = boot(async () => okPage());
-    for (const n of ["tahajud-static-v1", "tahajud-pages-v1", "tahajud-static-v2", "tahajud-pages-v2", "other-app"])
+    for (const n of ["tahajud-static-v1", "tahajud-pages-v1", "tahajud-static-v3", "tahajud-pages-v3", "other-app"])
       await w.caches.open(n);
     await w.fire("activate");
-    expect([...w.store.keys()].sort()).toEqual(["other-app", "tahajud-pages-v2", "tahajud-static-v2"]);
+    expect([...w.store.keys()].sort()).toEqual(["other-app", "tahajud-pages-v3", "tahajud-static-v3"]);
     expect(w.flags.claimed).toBe(1);
   });
 });
@@ -176,7 +197,7 @@ describe("service worker: navigation", () => {
     const a = await w.fire("fetch", { request: nav });
     expect(a.response!.body).toBe("<html>");
     await tick();
-    expect(w.puts).toEqual(["tahajud-pages-v2|https://app.test/dashboard"]); // query stripped from the key
+    expect(w.puts).toEqual(["tahajud-pages-v3|https://app.test/dashboard"]); // query stripped from the key
     online = false;
     const b = await w.fire("fetch", { request: req("/dashboard", { mode: "navigate" }) });
     expect(b.response!.body).toBe("<html>");
@@ -240,5 +261,73 @@ describe("service worker: static files", () => {
     await w.fire("fetch", { request: req("/_next/static/missing.js") });
     await tick();
     expect(w.puts).toEqual([]);
+  });
+});
+
+describe("service worker: push and notification click", () => {
+  const pushData = (v: unknown) => ({ data: { json: () => v } });
+
+  it("shows the notification with icon, badge and a dedupe tag", async () => {
+    const w = boot(async () => okPage());
+    await w.fire(
+      "push",
+      pushData({ type: "tahajud", title: "Waktunya bangun", body: "Pelan-pelan saja.", url: "/worship/session", tag: "tahajud-2026-11-18" }),
+    );
+    expect(w.shown).toHaveLength(1);
+    expect(w.shown[0]!.title).toBe("Waktunya bangun");
+    expect(w.shown[0]!.options).toMatchObject({
+      body: "Pelan-pelan saja.",
+      icon: "/icons/icon-192.png",
+      tag: "tahajud-2026-11-18",
+      data: { url: "/worship/session" },
+    });
+    expect(w.shown[0]!.options.badge).toBeTruthy();
+  });
+
+  it("survives an empty or broken payload with a safe default", async () => {
+    const w = boot(async () => okPage());
+    await w.fire("push", {});
+    await w.fire("push", { data: { json: () => { throw new Error("bad json"); } } });
+    expect(w.shown.map((n) => n.title)).toEqual(["Munajaa", "Munajaa"]);
+    expect(w.shown[0]!.options.data).toEqual({ url: "/dashboard" });
+  });
+
+  it("replaces an unsafe url from the payload with the dashboard", async () => {
+    const w = boot(async () => okPage());
+    for (const url of ["https://evil.test/x", "//evil.test/x", "javascript:alert(1)", "/a\\b", 42]) {
+      await w.fire("push", pushData({ title: "t", body: "b", url }));
+    }
+    expect(w.shown.every((n) => (n.options.data as { url: string }).url === "/dashboard")).toBe(true);
+  });
+
+  const click = (url: unknown) => {
+    let closed = 0;
+    return { notification: { data: { url }, close: () => closed++ }, closed: () => closed };
+  };
+
+  it("click focuses an open tab and moves it to the target path", async () => {
+    const w = boot(async () => okPage());
+    w.windows.push({ url: "https://app.test/dashboard", focused: 0, navigated: [] });
+    const c = click("/worship/session");
+    await w.fire("notificationclick", c);
+    expect(c.closed()).toBe(1);
+    expect(w.windows[0]!.focused).toBe(1);
+    expect(w.windows[0]!.navigated).toEqual(["https://app.test/worship/session"]);
+    expect(w.opened).toEqual([]);
+  });
+
+  it("click does not navigate a tab that is already on the target path", async () => {
+    const w = boot(async () => okPage());
+    w.windows.push({ url: "https://app.test/quran/18", focused: 0, navigated: [] });
+    await w.fire("notificationclick", click("/quran/18"));
+    expect(w.windows[0]!.navigated).toEqual([]);
+    expect(w.windows[0]!.focused).toBe(1);
+  });
+
+  it("click opens a new window when no tab is open, and never an off-origin url", async () => {
+    const w = boot(async () => okPage());
+    await w.fire("notificationclick", click("/levels"));
+    await w.fire("notificationclick", click("https://evil.test/"));
+    expect(w.opened).toEqual(["https://app.test/levels", "https://app.test/dashboard"]);
   });
 });

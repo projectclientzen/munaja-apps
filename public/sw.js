@@ -1,6 +1,6 @@
 /* Munajaa service worker. Caches the app shell and static files only. */
 // Bump VERSION to drop old caches on the next activate. shortcut: manual bump, automate with the build id later.
-const VERSION = "v2";
+const VERSION = "v3";
 const STATIC = `tahajud-static-${VERSION}`;
 const PAGES = `tahajud-pages-${VERSION}`;
 // Qur'an text files (public/quran/*.json) are static and versioned with the app: bump QURAN_VERSION if they change.
@@ -79,4 +79,48 @@ async function cacheFirst(req, cacheName) {
     caches.open(cacheName).then((c) => c.put(req, copy));
   }
   return res;
+}
+
+// ---- Web Push ----
+// Payload from src/server/push/payload.ts: {type, title, body, url, tag}. Anything missing falls back to a safe default.
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = {};
+  }
+  const title = typeof data.title === "string" && data.title ? data.title : "Munajaa";
+  const options = {
+    body: typeof data.body === "string" ? data.body : "",
+    icon: "/icons/icon-192.png",
+    badge: "/icons/favicon-64.png",
+    // Same tag replaces the earlier notification instead of stacking.
+    tag: typeof data.tag === "string" && data.tag ? data.tag : "munajaa",
+    data: { url: safePath(data.url) },
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const path = safePath(event.notification.data && event.notification.data.url);
+  event.waitUntil(
+    (async () => {
+      const target = new URL(path, self.location.origin).href;
+      const all = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+      const mine = all.find((c) => new URL(c.url).origin === self.location.origin);
+      if (mine) {
+        if (mine.navigate && new URL(mine.url).pathname !== path) await mine.navigate(target).catch(() => {});
+        return mine.focus();
+      }
+      return self.clients.openWindow(target);
+    })(),
+  );
+});
+
+// Only a same-origin relative path may be opened. Anything else falls back to the dashboard.
+function safePath(value) {
+  if (typeof value !== "string" || !value.startsWith("/") || value.startsWith("//") || value.includes("\\")) return "/dashboard";
+  return value;
 }

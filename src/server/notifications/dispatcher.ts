@@ -5,9 +5,11 @@ import { one, type Db, type Queryable } from "@/server/db";
 import type { Logger } from "@/server/jobs/log";
 import type { PushSender, PushSubscriptionRecord } from "@/server/push";
 import {
-  DEFAULT_COPY,
   DEMO_BEDTIME_BANK,
   NOTIFICATION_URL,
+  isFixedCopyType,
+  localDateOf,
+  pickCopy,
   firstName,
   isDemoKey,
   renderBank,
@@ -210,9 +212,8 @@ export async function dispatchDue(deps: DispatchDeps): Promise<DispatchResult> {
       if (!ctx.template) return skip(job, "skipped", "template_unavailable");
       content = renderBank(ctx.template, { nama: firstName(ctx.name), level: ctx.level });
     } else {
-      const copy = DEFAULT_COPY[type];
-      if (!copy) return skip(job, "skipped", "no_content");
-      content = copy;
+      if (!isFixedCopyType(type)) return skip(job, "skipped", "no_content");
+      content = pickCopy(type, localDateOf(scheduledAt, ctx.tz ?? "Asia/Jakarta"));
     }
 
     const ttlSeconds = Math.max(1, Math.min(settings.notificationExpiryMinutes[type] * 60, Math.floor((expiresAt.getTime() - now.getTime()) / 1000)));

@@ -568,6 +568,10 @@ export type PushSubscriptionRequest = z.infer<typeof pushSubscriptionRequestSche
 export const pushSubscriptionSchema = z.object({ id: z.string(), is_active: z.boolean(), created_at: isoInstant });
 export type PushSubscriptionInfo = z.infer<typeof pushSubscriptionSchema>;
 
+/** GET /push/public-key. Only the public half of the VAPID pair. */
+export const pushPublicKeySchema = z.object({ public_key: z.string().min(1).max(256) });
+export type PushPublicKey = z.infer<typeof pushPublicKeySchema>;
+
 /** GET /me/notifications. What was sent to this user in the last 30 days. */
 export const notificationItemSchema = z.object({
   id: z.string(),

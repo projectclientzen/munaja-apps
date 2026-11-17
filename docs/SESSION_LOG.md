@@ -225,3 +225,10 @@ Branch `claude/u1b-quran-reports-settings`, basis `main` @ `0e5cfd2`. Detail dan
 - Perbaikan orchestrator di atasnya: migration 20261118150000 (dashboard/level screen staf sebelum sesi pertama kini memakai level pilihan, bukan selalu 3; satu helper `staff_level`; overload lama admin_staff_create tanpa level dihapus), label level tanpa em-dash, test DB admin-staff disesuaikan + test STAFF-LEVEL baru, test konten tahlil_tambahan.
 - Gerbang: typecheck 0, lint 0, unit 1583 + 3 skip, db 370, e2e mock 352, live 38, admin 20, audit bersih.
 - Deploy: server perlu `git pull --rebase` (commit Hermes sudah sama isinya) lalu `pnpm db:migrate` untuk 20261118150000.
+
+## N1 (branch `claude/n1-push`, 2026-11-17)
+- Dikerjakan: pengingat Web Push end-to-end di sisi klien + endpoint kunci publik. SW `push`/`notificationclick` (cache v3), `GET /push/public-key`, `EnableReminders`, varian pesan owner (A/B per tanggal lokal), bedtime disembunyikan di live. Detail dan cara uji manual di HP: `docs/sessions/N1.md`.
+- Gerbang: typecheck 0, lint 0, unit 1619 + 3 skip, db 370, e2e mock 366, live 40, audit bersih (output di `docs/sessions/N1.md`).
+- Sisa: uji manual di HP nyata (Android Chrome, iPhone PWA) setelah VAPID produksi diisi; logout belum otomatis unsubscribe push di browser; bedtime menunggu bank pesan owner.
+- Pertanyaan untuk owner: lihat `docs/sessions/N1.md`.
+

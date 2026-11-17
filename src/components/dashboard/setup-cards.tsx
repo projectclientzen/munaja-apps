@@ -1,6 +1,8 @@
 "use client";
 
 import { BellRing, MapPinned, Smartphone, type LucideIcon } from "lucide-react";
+import Link from "next/link";
+import { EnableReminders } from "@/components/notifications/enable-reminders";
 import { InstallGuide } from "@/components/pwa/install-guide";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,7 +23,7 @@ const COPY: Record<Dashboard["setup_cards"][number]["key"], { icon: LucideIcon; 
   },
 };
 
-/** Section I: setup steps that are not done yet. The settings screens arrive in a later session, so these are labelled. */
+/** Section I: setup steps that are not done yet. */
 export function SetupCards({ cards }: { cards: Dashboard["setup_cards"] }) {
   const todo = cards.filter((c) => !c.done);
   if (todo.length === 0) return null;
@@ -45,8 +47,12 @@ export function SetupCards({ cards }: { cards: Dashboard["setup_cards"] }) {
                   >
                     <InstallGuide />
                   </Sheet>
+                ) : c.key === "notifications" ? (
+                  <EnableReminders />
                 ) : (
-                  <p className="text-helper text-text-muted">Segera tersedia di Pengaturan.</p>
+                  <Button variant="secondary" asChild>
+                    <Link href="/settings#wilayah">Atur wilayah</Link>
+                  </Button>
                 )}
               </Card>
             </li>

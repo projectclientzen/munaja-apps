@@ -4,15 +4,16 @@ import { AlarmClock, BellRing } from "lucide-react";
 import Link from "next/link";
 import * as React from "react";
 import { InstallGuide } from "@/components/pwa/install-guide";
-import { errorMessage, useData, useLoad } from "@/components/providers/data-provider";
+import { useData, useLoad } from "@/components/providers/data-provider";
 import { PageHeader } from "@/components/shell/page-header";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { EmptyState, PermissionDeniedState } from "@/components/ui/feedback-state";
 import { cn } from "@/lib/cn";
 import { ScheduleNote } from "@/components/settings/schedule-note";
 import { formatClock, tzLabel } from "@/lib/format-id";
 import { detectPlatform, isStandalone } from "@/offline/platform";
+import { EnableReminders } from "./enable-reminders";
 import { DEMO_HISTORY } from "./demo-history";
 import { pushState, type PushState } from "./push-support";
 
@@ -63,17 +64,7 @@ function ManualAlarm({ highlight }: { highlight: boolean }) {
 export function NotificationCenter() {
   const { layer } = useData();
   const [state, setState] = React.useState<PushState | null>(null);
-  const [err, setErr] = React.useState<string | null>(null);
   React.useEffect(() => setState(readState()), []);
-
-  async function ask() {
-    try {
-      await Notification.requestPermission();
-      setState(readState());
-    } catch (e) {
-      setErr(errorMessage(e));
-    }
-  }
 
   return (
     <>
@@ -104,28 +95,13 @@ export function NotificationCenter() {
           />
         ) : null}
         {state === "denied" ? <PermissionDeniedState /> : null}
-        {state === "can_ask" ? (
+        {state === "can_ask" || state === "granted" ? (
           <Card className="flex flex-col gap-3">
             <CardTitle>Aktifkan pengingat</CardTitle>
             <p className="text-text-muted">
-              Aplikasi mengirim pengingat tidur, tahajud, dan Subuh sesuai pengaturanmu. Browser akan meminta izin
-              setelah kamu menekan tombol ini.
+              Aplikasi mengirim pengingat tahajud, Subuh, dan bacaan Jumat sesuai pengaturanmu.
             </p>
-            <Button className="self-start" onClick={ask}>
-              Aktifkan pengingat
-            </Button>
-            {err ? (
-              <p role="alert" className="text-error">
-                {err}
-              </p>
-            ) : null}
-          </Card>
-        ) : null}
-        {state === "granted" ? (
-          <Card role="status">
-            <p>
-              Izin notifikasi sudah diberikan. Pengiriman pengingat aktif setelah layanan notifikasi server tersedia.
-            </p>
+            <EnableReminders onChange={() => setState(readState())} />
           </Card>
         ) : null}
 

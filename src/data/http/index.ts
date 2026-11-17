@@ -22,6 +22,7 @@ import {
   notificationPreferencesSchema,
   prayerTimeSchema,
   prayerTimesResponseSchema,
+  pushPublicKeySchema,
   pushSubscriptionSchema,
   quranSurahDetailSchema,
   quranSurahListSchema,
@@ -197,6 +198,7 @@ export function createHttpDataLayer(opts: HttpOptions = {}): HttpDataLayer {
         http.call("GET", `/quran/surahs/${encodeURIComponent(String(surah))}`, { schema: quranSurahDetailSchema }),
     },
     push: {
+      getPublicKey: () => http.call("GET", "/push/public-key", { schema: pushPublicKeySchema }),
       addSubscription: (req) =>
         http.call("POST", "/me/push-subscriptions", { body: req, schema: pushSubscriptionSchema }),
       removeSubscription: async (id) => {

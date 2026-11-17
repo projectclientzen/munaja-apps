@@ -17,6 +17,7 @@ import type {
   NotificationList,
   PrayerTimesQuery,
   PrayerTimesResponse,
+  PushPublicKey,
   PushSubscriptionInfo,
   PushSubscriptionRequest,
   QuranSurahDetail,
@@ -196,6 +197,8 @@ export interface QuranCatalogRepository {
 }
 
 export interface PushRepository {
+  /** GET /push/public-key. NOT_AVAILABLE when the server has no VAPID keys. */
+  getPublicKey(): Promise<PushPublicKey>;
   /** POST /me/push-subscriptions. Same browser subscribing again replaces the old row. */
   addSubscription(req: PushSubscriptionRequest): Promise<PushSubscriptionInfo>;
   /** DELETE /me/push-subscriptions/:id. Own subscriptions only: someone else's id is NOT_FOUND. */
