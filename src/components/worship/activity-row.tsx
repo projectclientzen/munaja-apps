@@ -7,6 +7,8 @@ import * as React from "react";
 import { useData } from "@/components/providers/data-provider";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { hasNiat, NiatButton } from "./niat-sheet";
+import { QuranRefLink } from "./quran-ref";
+import { quranRefFor } from "@/domain/content";
 import type { SessionActivity } from "@/data";
 import { cn } from "@/lib/cn";
 
@@ -133,7 +135,37 @@ export function ActivityRow({ activity: a, onChanged, onError }: RowProps) {
     }
   }
 
-  const note = a.type === "quran" ? "Reader menyusul. Centang setelah selesai membaca." : a.guidance;
+  const quran = a.type === "quran" ? quranRefFor(a.key) : null;
+  if (quran) {
+    // Tapping the title opens the reading; the box beside it ticks. Two targets, so neither steals the other's tap.
+    return (
+      <li id={`act-${a.id}`} className="flex flex-col">
+        <div
+          className={cn(
+            "flex min-h-16 items-center gap-3 rounded-[var(--radius-control)] px-3 py-2",
+            saving && "opacity-60",
+          )}
+        >
+          <input
+            type="checkbox"
+            className="size-7 shrink-0 accent-[var(--primary)]"
+            aria-label={`Tandai ${a.title} sudah dibaca`}
+            checked={local ?? a.checked}
+            disabled={saving}
+            onChange={toggle}
+          />
+          <QuranRefLink
+            title={a.title}
+            note={quran.from === null ? "Ketuk untuk membaca. Centang setelah selesai." : "Ketuk untuk melihat ayat. Centang setelah selesai."}
+            quran={quran}
+          />
+          <span className="sr-only">{a.required ? "Syarat sesi tuntas" : "Opsional"}</span>
+        </div>
+      </li>
+    );
+  }
+
+  const note = a.type === "quran" ? "Centang setelah selesai membaca." : a.guidance;
   return (
     <li id={`act-${a.id}`} className="flex flex-col">
       <label

@@ -20,7 +20,13 @@ const activitySchema = z.object({
   unit: z.string().nullish(),
   required: z.boolean(),
   dhikr_ref: z.string().optional(),
-  quran_ref: z.unknown().optional(),
+  quran_ref: z
+    .object({
+      surah: z.number().int().min(1).max(114),
+      from: z.number().int().positive().optional(),
+      to: z.number().int().positive().optional(),
+    })
+    .optional(),
   guidance: z.string().nullish(),
   note: z.string().nullish(),
 });
@@ -66,6 +72,15 @@ export interface ActivityConfig {
   required: boolean;
   dhikrRef: string | null;
   guidance: string | null;
+  /** Which part of the Qur'an a `quran` item points to, from content/amalan.v1.json. Null for other types. */
+  quranRef: QuranRef | null;
+}
+
+/** A surah, or a range of ayat inside it (`from`/`to` null = the whole surah). */
+export interface QuranRef {
+  surah: number;
+  from: number | null;
+  to: number | null;
 }
 
 export interface DhikrText {
@@ -136,6 +151,7 @@ export function parseAmalan(raw: unknown): AmalanContent {
           required: a.required,
           dhikrRef: a.dhikr_ref ?? null,
           guidance: a.guidance ?? null,
+          quranRef: a.quran_ref ? { surah: a.quran_ref.surah, from: a.quran_ref.from ?? null, to: a.quran_ref.to ?? null } : null,
         });
       });
     }
@@ -175,4 +191,14 @@ export function nightRakaatTotal(cfg: LevelConfig): number {
   return cfg.activities
     .filter((a) => a.phase === "night" && a.type === "prayer")
     .reduce((n, a) => n + (a.target ?? 0), 0);
+}
+
+/** The Qur'an reference of a session item, by activity key (same in every level), or null. */
+export function quranRefFor(key: string): QuranRef | null {
+  const c = getAmalan();
+  for (const lv of [1, 2, 3] as const) {
+    const hit = c.levels[lv].activities.find((a) => a.key === key && a.quranRef);
+    if (hit) return hit.quranRef;
+  }
+  return null;
 }

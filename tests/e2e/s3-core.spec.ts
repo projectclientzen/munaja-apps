@@ -149,8 +149,21 @@ test("levels: three levels, locked state and the milestone", async ({ page }) =>
   await expect(page.getByTestId("level-3")).toContainText("Terkunci");
 });
 
-test("Qur'an items show a note and no verse text", async ({ page }) => {
+test("Qur'an items: Al-Waqi'ah opens the reader, Ayat Seribu Dinar opens the Tanzil ayat in a sheet", async ({ page }) => {
   await startSession(page);
-  const note = page.getByText("Reader menyusul. Centang setelah selesai membaca.");
-  await expect(note.first()).toBeVisible();
+  // The sheet first: ayat 65:2-3 from the dataset, with attribution, and no tick from opening it.
+  const box = page.getByRole("checkbox", { name: /Tandai Ayat Seribu Dinar/ });
+  const before = await box.isChecked();
+  await page.getByRole("button", { name: /Lihat ayat Ayat Seribu Dinar/ }).click();
+  const dialog = page.getByRole("dialog");
+  await expect(dialog.getByTestId("quran-ref-text")).toBeVisible();
+  await expect(dialog.locator(".arabic")).toHaveCount(2);
+  await expect(dialog.getByText("Ayat 2")).toBeVisible();
+  await expect(dialog.getByText("Ayat 3")).toBeVisible();
+  await expect(dialog.getByText(/Tanzil Project/)).toBeVisible();
+  await page.keyboard.press("Escape");
+  expect(await box.isChecked()).toBe(before);
+  // Al-Waqi'ah goes straight to the reader.
+  await page.getByRole("link", { name: "Baca Surah Al-Waqi'ah" }).click();
+  await expect(page).toHaveURL(/\/quran\/56$/);
 });
