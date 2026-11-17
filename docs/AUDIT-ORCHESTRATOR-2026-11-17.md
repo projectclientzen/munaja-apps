@@ -49,3 +49,10 @@ Pengganti audit Fable ke-2 (Fable tidak tersedia). Metode: baca kode di main, di
 | 16 | Hash password | OK | scrypt ln=15 r=8 p=3, salt acak, PHC |
 | 17 | Session aman | OK | Token acak, disimpan sebagai HMAC, HttpOnly + SameSite=Lax + Secure, batas 3 perangkat |
 | 18 | Reset password aman | OK | Token sekali pakai 60 menit (HMAC), mencabut semua perangkat, rate limit + respons generik |
+
+## Verifikasi server (Hermes, 17 Nov 2026)
+Header keamanan lengkap; `/api/internal/cron` 404; webhook tanpa tanda tangan 401; health ok; Postgres dan app hanya 127.0.0.1/::1; `.env` 600 milik munaja; NODE_ENV=production, DATA_MODE=live; role munaja/munaja_owner/munaja_app tanpa superuser/createrole/createdb; listen_addresses default (localhost); UFW tidak membuka 5432/3005. Poin 1-18: TERBUKTI di kode dan server.
+
+Catatan server (di luar app Munajaa):
+- Port 3000 (WAHA, gateway WhatsApp) terbuka publik v4+v6. Bila WAHA tanpa API key, pihak luar bisa memakai nomor WA bisnis. Rekomendasi: batasi ke localhost/jaringan docker atau aktifkan API key WAHA.
+- EACCES saat install/build menandakan perintah pernah dijalankan sebagai root. Jalankan pnpm sebagai user `munaja` (`sudo -u munaja ...`).
