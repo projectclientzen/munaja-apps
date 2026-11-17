@@ -46,3 +46,5 @@ Teks disalin apa adanya. Temuan di bawah TIDAK diterapkan sampai owner memutuska
 | N5 | Semua | Gaya transliterasi beda (â, aa, oo/o) | Pilih satu gaya |
 | N6 | Qabliyah Subuh | Belum ada teks | Owner kirim, atau tombol niat disembunyikan di langkah ini |
 Keputusan owner 13 Nov 2026: N1 sampai N5 dipakai apa adanya (Witir memang 2 niat: 1 rakaat dan 2 rakaat). N6: Qabliyah Subuh tanpa tombol niat (entri dihapus). Status `published`.
+
+Keputusan owner 17 Nov 2026: item `tahlil_tambahan` (Level 1, opsional) dihapus dari konten.

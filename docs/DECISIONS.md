@@ -136,3 +136,5 @@ Detail dan bukti: `docs/sessions/U2.md`. Semua yang berlabel PROVISIONAL menungg
 ## 2026-11-16: brand
 - Logo owner bertuliskan "Munajaa" (dua a); owner: "pake double a gak masalah". Nama tampil di UI tetap "Munaja" sampai owner memastikan apakah nama app juga diganti.
 - 16 Nov (lanjutan): owner memutuskan nama tampil "Munajaa" (sesuai logo). Domain app: apps.munajaapp.com. Webhook Scalev disimpan di dashboard dengan path /api/webhooks/scalev: dibuat alias ke /api/v1/webhooks/scalev (handler sama). Varian produk: id 648177, SKU MUNAJA-01 (dari Hermes).
+- 17 Nov: owner memutuskan "Tahlil tambahan (opsional, total 300)" DIHAPUS dari Level 1. Dikerjakan Hermes di VPS (commit 8a1a728 konten + seed, 4320dec migration hide 20261118140000) bersama fitur staff level (d5a94ca, migration 20261118120000 dan 130000). Ketiga commit belum ada di GitHub: menunggu patch dari VPS, orchestrator review + gerbang, lalu merge dengan isi file identik (migration sudah applied di DB live).
+- 17 Nov: `scripts/scalev-probe.ts` (read-only) untuk memastikan bentuk respons GET order / list order Scalev nyata cocok dengan parser app tanpa membocorkan data pribadi.
