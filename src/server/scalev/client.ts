@@ -136,7 +136,37 @@ function orderFrom(o: Record<string, unknown>): ScalevOrder | null {
   };
 }
 
-/** NEEDS_VERIFICATION: the list response shape. Looks for the array in `data.results`, `data` or `results`. */
+/**
+ * A list item. The real list (`GET /v3/orders`, checked on the live store 17 Nov 2026) returns a SUMMARY per order:
+ * id, order_id, status, created_at, customer, but no payment_status and no orderlines. So a list item only needs a
+ * UUID id. It never grants anything: the sweep files it as an event and the worker still GETs the full order.
+ */
+function summaryFrom(o: Record<string, unknown>): ScalevOrder | null {
+  const id = str(o.id);
+  if (!id || !ORDER_ID_RE.test(id)) return null;
+  return {
+    id: id.toLowerCase(),
+    orderNumber: str(o.order_id),
+    status: str(o.status),
+    paymentStatus: str(o.payment_status),
+    isSpam: o.is_probably_spam === true,
+    netAmount: null,
+    currency: null,
+    customerName: null,
+    customerEmail: null,
+    customerPhone: null,
+    addressEmail: null,
+    addressPhone: null,
+    orderlines: [],
+    createdAt: str(o.created_at) ?? str(o.created_time),
+    paidAt: str(o.paid_time) ?? str(o.payment_time) ?? str(o.paid_at),
+  };
+}
+
+/**
+ * The list response. Live shape (17 Nov 2026): `{ data: [...], is_paginated, has_next, next_cursor, page_size }`.
+ * Older guesses (`data.results`, `results`) stay accepted.
+ */
 export function parseOrderPage(body: unknown): ScalevOrderPage | null {
   const top = obj(body);
   if (!top) return null;
@@ -152,7 +182,7 @@ export function parseOrderPage(body: unknown): ScalevOrderPage | null {
   if (!list) return null;
   const orders = list.flatMap((x) => {
     const o = obj(x);
-    const parsed = o ? orderFrom(o) : null;
+    const parsed = o ? (orderFrom(o) ?? summaryFrom(o)) : null;
     return parsed ? [parsed] : [];
   });
   const cursor = str(d?.next_cursor) ?? str(d?.cursor) ?? str(top.next_cursor) ?? str(top.cursor);

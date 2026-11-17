@@ -164,3 +164,42 @@ describe("listing orders (NEEDS_VERIFICATION)", () => {
     expect(parseOrderPage(null)).toBeNull();
   });
 });
+
+describe("SCALEV-LIST live list shape (17 Nov 2026, store 2785, values masked)", () => {
+  it("reads summary items without payment_status or orderlines, and the top-level cursor", () => {
+    const live = {
+      data: [
+        {
+          created_at: "2026-11-10T12:49:39Z",
+          customer: { id: 1, name: "x", email: null, phone: "6280000000000" },
+          id: "01a1c581-c6b8-79f9-8932-5df389a66804",
+          is_probably_spam: false,
+          order_id: "261110YAWDYBP",
+          payment_method: "bank_transfer",
+          status: "completed",
+          tags: [],
+        },
+        { id: "not-a-uuid", status: "completed" },
+      ],
+      is_paginated: true,
+      has_next: true,
+      has_previous: false,
+      next_cursor: "cursor-abc",
+      previous_cursor: null,
+      page_size: 3,
+    };
+    const page = parseOrderPage(live);
+    expect(page?.nextCursor).toBe("cursor-abc");
+    expect(page?.orders).toHaveLength(1);
+    expect(page?.orders[0]).toMatchObject({
+      id: "01a1c581-c6b8-79f9-8932-5df389a66804",
+      orderNumber: "261110YAWDYBP",
+      status: "completed",
+      paymentStatus: null,
+      orderlines: [],
+      customerEmail: null,
+      createdAt: "2026-11-10T12:49:39Z",
+    });
+    expect(parseOrderPage({ ...live, has_next: false })?.nextCursor).toBeNull();
+  });
+});
