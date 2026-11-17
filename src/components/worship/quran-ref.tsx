@@ -6,7 +6,7 @@ import * as React from "react";
 import { Sheet } from "@/components/ui/sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { quranText, QURAN_ATTRIBUTION, type SurahText } from "@/data/quran";
-import type { QuranRef } from "@/domain/content";
+import { quranLatinFor, quranRefKey, type QuranRef } from "@/domain/content";
 
 /**
  * Where a Qur'an item of the session leads. A whole surah opens the reader. A few ayat (Ayat Seribu Dinar, 65:2-3)
@@ -87,11 +87,29 @@ function AyatBody({ quran }: { quran: QuranRef }) {
           </li>
         ))}
       </ol>
+      <LatinBlock quran={quran} />
       <Link href={`/quran/${quran.surah}`} className="inline-flex min-h-11 items-center gap-2 font-medium underline">
         <BookOpen aria-hidden className="size-5" />
         Buka di Al-Qur&apos;an
       </Link>
       <p className="text-helper text-text-muted">{QURAN_ATTRIBUTION.text}</p>
+    </div>
+  );
+}
+
+/** Owner Latin for the range, if any. Shown under the Tanzil Arabic, never instead of it. */
+function LatinBlock({ quran }: { quran: QuranRef }) {
+  const t = quranLatinFor(quranRefKey(quran.surah, quran.from, quran.to));
+  if (!t || (!t.latin && !t.translation)) return null;
+  return (
+    <div className="flex flex-col gap-2" data-testid="quran-ref-latin">
+      {t.needsReview ? (
+        <p className="w-fit rounded-full bg-warning-soft px-2.5 py-0.5 text-helper font-medium">
+          Teks Latin ini belum selesai ditinjau.
+        </p>
+      ) : null}
+      {t.latin ? <p className="italic">{t.latin}</p> : null}
+      {t.translation ? <p className="text-text-muted">{t.translation}</p> : null}
     </div>
   );
 }

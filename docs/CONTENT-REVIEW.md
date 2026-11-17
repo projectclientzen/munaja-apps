@@ -48,3 +48,12 @@ Teks disalin apa adanya. Temuan di bawah TIDAK diterapkan sampai owner memutuska
 Keputusan owner 13 Nov 2026: N1 sampai N5 dipakai apa adanya (Witir memang 2 niat: 1 rakaat dan 2 rakaat). N6: Qabliyah Subuh tanpa tombol niat (entri dihapus). Status `published`.
 
 Keputusan owner 17 Nov 2026: item `tahlil_tambahan` (Level 1, opsional) dihapus dari konten.
+
+## Latin Ayat Seribu Dinar (`content/quran-latin.v1.json` v1.0.0, dari owner 17 Nov 2026), status `in_review`
+Disalin apa adanya. Teks Arab yang dikirim owner TIDAK dipakai: ayat tetap dari Tanzil (aturan CLAUDE.md). Temuan, belum diterapkan:
+| # | Temuan | Usulan |
+|---|--------|--------|
+| L1 | "min aisu" | Lazimnya "min haitsu" (حَيْثُ) |
+| L2 | "yaj al-lahu", "ja alallahu", "syai in" | Penanda 'ain biasanya ditulis "yaj'al", "ja'alallahu", "syai'in" |
+| L3 | "baligu" | Lazimnya "baalighu" (بَالِغُ) |
+| L4 | Gaya beda dengan niat (aa/â) | Opsional disamakan |

@@ -161,6 +161,7 @@ test("Qur'an items: Al-Waqi'ah opens the reader, Ayat Seribu Dinar opens the Tan
   await expect(dialog.getByText("Ayat 2")).toBeVisible();
   await expect(dialog.getByText("Ayat 3")).toBeVisible();
   await expect(dialog.getByText(/Tanzil Project/)).toBeVisible();
+  await expect(dialog.getByTestId("quran-ref-latin")).toContainText("yattaqillaha");
   await page.keyboard.press("Escape");
   expect(await box.isChecked()).toBe(before);
   // Al-Waqi'ah goes straight to the reader.
