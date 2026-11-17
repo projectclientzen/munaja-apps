@@ -5,7 +5,7 @@ export function Wordmark({ className, compact = false }: { className?: string; c
   return (
     <span className={cn("inline-flex flex-col leading-tight", className)}>
       <span className="text-[1.0625rem] font-bold">Munajaa</span>
-      {compact ? null : <span className="text-helper text-text-muted">oleh NgajiGaes</span>}
+      {compact ? null : <span className="text-helper text-text-muted">by NgajiGaes</span>}
     </span>
   );
 }
