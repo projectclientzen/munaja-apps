@@ -137,10 +137,11 @@ describe("X8 schema: staff accounts, order tools, level bypass, report exclusion
       const accountsNow = Number(before.accounts);
       const profiles = Number((await rows<{ n: number }>(pg, "select count(*)::int as n from public.profiles"))[0]!.n);
       const staffProfiles = Number((await rows<{ n: number }>(pg, "select count(*)::int as n from public.profiles p where app_private.is_staff_user(p.user_id)"))[0]!.n);
-      expect(staffProfiles).toBe(1);
+      // The staff account plus the two admin accounts, which get automatic app access (20261119010000).
+      expect(staffProfiles).toBe(3);
       expect(accountsNow).toBe(profiles - staffProfiles);
       const staffInEnt = (await rows<{ n: number }>(pg, "select count(*)::int as n from public.access_entitlements where entitlement_type = 'staff_comp'"))[0]!.n;
-      expect(staffInEnt).toBe(1);
+      expect(staffInEnt).toBe(3);
       const total = before.entitlements.reduce((s: number, g: any) => s + Number(g.n), 0);
       const allEnt = Number((await rows<{ n: number }>(pg, "select count(*)::int as n from public.access_entitlements"))[0]!.n);
       expect(total).toBe(allEnt - staffInEnt);

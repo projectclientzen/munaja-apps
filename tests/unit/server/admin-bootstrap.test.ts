@@ -12,13 +12,18 @@ afterAll(async () => {
 const deps = () => ({ db: env.db, cfg: env.cfg, now: () => env.now() });
 
 describe("scripts/admin-grant-role: first super_admin, no default password", () => {
-  it("makes an account with no credentials and no entitlement, grants the role, audits it, and prints a link only to a terminal", async () => {
+  it("makes an account with no credentials and no purchase, grants the role (with automatic app access), audits it, and prints a link only to a terminal", async () => {
     const piped = await grantAdminRole(deps(), { email: "Owner@NgajiGaes.test", printLink: true, isTty: false, appBaseUrl: "https://app.test" });
     expect(piped).toMatchObject({ email: "owner@ngajigaes.test", role: "super_admin", accountCreated: true, roleGranted: true });
     expect(piped.link).toBeUndefined();
     expect(piped.notes.join(" ")).toMatch(/bukan terminal/);
     expect((await env.db.exec("select 1 from public.auth_credentials")).length).toBe(0);
-    expect((await env.db.exec("select 1 from public.access_entitlements where email_normalized = 'owner@ngajigaes.test'")).length).toBe(0);
+    // No purchase: the only entitlement is the automatic app access of an admin account (20261119010000).
+    expect(
+      await env.db.exec(
+        "select entitlement_type, status, (granted_by = user_id) as auto from public.access_entitlements where email_normalized = 'owner@ngajigaes.test'",
+      ),
+    ).toEqual([{ entitlement_type: "staff_comp", status: "active", auto: true }]);
     expect((await env.db.exec("select 1 from public.auth_tokens")).length).toBe(0);
     const audit = await env.db.exec("select action, actor_id from public.admin_audit_logs where action = 'role.granted'");
     expect(audit).toEqual([{ action: "role.granted", actor_id: null }]);
