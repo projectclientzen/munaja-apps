@@ -225,7 +225,7 @@ test("live T3c: export, then delete the account; the session is gone and the dat
   await expect(page).toHaveURL(/\/login$/);
 });
 
-test("live N1: reminders UI in Settings. No VAPID key means 'belum tersedia', bedtime stays hidden", async ({ page }, info) => {
+test("live N1: reminders UI in Settings. No VAPID key means 'belum tersedia'; bedtime is offered (owner bank published)", async ({ page }, info) => {
   await signInAndOnboard(page, mail("n1", info.project.name), info.project.name);
   const key = await api(page, "GET", "/push/public-key");
   expect(key.status).toBe(503);
@@ -233,9 +233,9 @@ test("live N1: reminders UI in Settings. No VAPID key means 'belum tersedia', be
 
   await page.addInitScript(() => Object.defineProperty(Notification, "permission", { get: () => "granted" }));
   await page.goto("/settings");
-  // Bedtime has no approved message bank, so it is not offered and the demo badge is absent in live mode.
-  await expect(page.getByTestId("bedtime-soon")).toContainText("Segera hadir");
-  await expect(page.getByRole("switch", { name: "Pengingat tidur" })).toHaveCount(0);
+  // The owner's bedtime bank is published (20261119030000), so bedtime is offered; no demo badge in live mode.
+  await expect(page.getByTestId("bedtime-soon")).toHaveCount(0);
+  await expect(page.getByRole("switch", { name: "Pengingat tidur" })).toBeVisible();
   await expect(page.getByRole("switch", { name: "Pengingat tahajud" })).toBeVisible();
   await expect(page.getByRole("switch", { name: "Pengingat Subuh" })).toBeVisible();
   await expect(page.getByRole("switch", { name: "Bacaan Jumat" })).toBeVisible();

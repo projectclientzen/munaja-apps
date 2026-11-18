@@ -28,7 +28,8 @@ export function NotificationSection({
   React.useEffect(() => setDraft(prefs), [prefs]);
 
   // Bedtime has no owner-approved message bank yet, so outside the demo it is hidden and never scheduled.
-  const showBedtime = layer?.mode === "mock";
+  // The bedtime bank is published (20261119030000), so the reminder is offered in every mode.
+  const showBedtime = true;
   const q = draft.quiet_hours;
   const timeOk = /^\d{2}:\d{2}$/.test(q.start) && /^\d{2}:\d{2}$/.test(q.end);
 

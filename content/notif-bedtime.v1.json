@@ -1,0 +1,219 @@
+{
+  "_comment": "Bank pesan pengingat tidur. Ditulis orchestrator, DISETUJUI owner (Zen) 18 Nov 2026: 'pake itu aja yang kamu buat'. Diisi ke public.notification_templates oleh migration 20261119030000. Perubahan berikutnya lewat admin (Notifikasi), bukan file ini.",
+  "content_version": "1.0.0",
+  "review_status": "published",
+  "approved_by": "Owner (Zen), 18 Nov 2026",
+  "category": "bedtime",
+  "items": [
+    {
+      "no": 1,
+      "style": "A",
+      "id": "ea6151c2-6287-5b2f-b81f-8c15a97fce35",
+      "title": "Taruh HP-nya dulu, {nama}",
+      "body": "Layar boleh menunggu sampai besok. Badanmu butuh istirahat supaya ringan bangun nanti malam."
+    },
+    {
+      "no": 2,
+      "style": "B",
+      "id": "d3a01496-51f6-5580-9f74-69f0ee441923",
+      "title": "Malam ini ada janji",
+      "body": "Sepertiga malam nanti ada waktu khusus untuk bermunajat. Tidur sekarang supaya datang tepat waktu."
+    },
+    {
+      "no": 3,
+      "style": "A",
+      "id": "fd8a5464-42c4-5104-a5a0-7e439226baae",
+      "title": "Sudah pasang alarm?",
+      "body": "Cek alarm untuk tahajud, lalu letakkan HP agak jauh dari kasur. Sisanya biar tidur yang urus."
+    },
+    {
+      "no": 4,
+      "style": "B",
+      "id": "37c27ec4-294a-5401-ac5f-7a4698e4583a",
+      "title": "Tutup hari dengan syukur",
+      "body": "Apa pun yang terjadi hari ini, sudah lewat. Ucapkan alhamdulillah, lalu istirahatlah dengan tenang."
+    },
+    {
+      "no": 5,
+      "style": "A",
+      "id": "3e9ed927-b3b6-52ed-b25e-cd9c345c4dd8",
+      "title": "Wudhu dulu sebelum tidur",
+      "body": "Tidur dalam keadaan suci bikin hati lebih tenang. Setelah itu matikan lampu dan pejamkan mata."
+    },
+    {
+      "no": 6,
+      "style": "B",
+      "id": "7ba04448-3855-5b7c-8dd2-ee4b51f01d0a",
+      "title": "Simpan doamu untuk nanti malam",
+      "body": "Ada hajat yang ingin kamu sampaikan? Tidur lebih awal supaya bisa menyampaikannya dengan khusyuk."
+    },
+    {
+      "no": 7,
+      "style": "A",
+      "id": "9ea10287-8fd5-5f2f-acbe-7ca59bcc7d78",
+      "title": "Kerjaan bisa dilanjut besok",
+      "body": "Email dan chat kantor tidak akan ke mana-mana. Malam ini giliran kamu yang istirahat, {nama}."
+    },
+    {
+      "no": 8,
+      "style": "B",
+      "id": "b48c5211-8156-580e-9663-929976f07fd3",
+      "title": "Tenangnya malam menunggumu",
+      "body": "Saat kota sudah sepi, sajadah terasa lebih dekat. Tidur dulu, nanti bangun dengan hati yang lapang."
+    },
+    {
+      "no": 9,
+      "style": "A",
+      "id": "5daaf6a4-a28b-569b-aefe-9dd00195ff23",
+      "title": "Lampu redup, pikiran pelan",
+      "body": "Kurangi cahaya kamar dan tarik napas panjang beberapa kali. Tubuhmu akan ikut melambat."
+    },
+    {
+      "no": 10,
+      "style": "B",
+      "id": "f52269f6-0344-55d1-8378-92f306203d75",
+      "title": "Niatkan bangun tahajud",
+      "body": "Sebelum terlelap, pasang niat untuk bangun malam. Niat yang tulus sering jadi alarm terbaik."
+    },
+    {
+      "no": 11,
+      "style": "A",
+      "id": "08280a5a-0f22-544b-8841-e1055e18d661",
+      "title": "Satu episode lagi? Besok saja",
+      "body": "Tontonan bisa disimpan. Jam tidur yang terlewat lebih sulit dikejar. Yuk istirahat sekarang."
+    },
+    {
+      "no": 12,
+      "style": "B",
+      "id": "2504c73f-50f2-5533-b311-441555bd72b9",
+      "title": "Hari ini sudah cukup",
+      "body": "Kamu sudah berusaha sebaik mungkin hari ini. Serahkan sisanya pada Allah dan beristirahatlah."
+    },
+    {
+      "no": 13,
+      "style": "A",
+      "id": "925b0eb3-1a2c-550e-a22e-bcba87e10f5b",
+      "title": "Minum air, lalu tidur",
+      "body": "Segelas air putih sebelum tidur, lalu matikan layar. Bangun nanti terasa lebih segar."
+    },
+    {
+      "no": 14,
+      "style": "B",
+      "id": "d58b34cd-3cec-5ece-ab87-f8c9fd5e1ad2",
+      "title": "Kembali ke sajadah nanti malam",
+      "body": "Tempat paling tenang bukan di layar, tapi di atas sajadah. Tidurlah, lalu temui ia nanti malam."
+    },
+    {
+      "no": 15,
+      "style": "A",
+      "id": "349a40d3-fd47-51ac-8f6f-dbf129e17b05",
+      "title": "Istirahat dulu, {nama}",
+      "body": "Kamu sudah bekerja keras hari ini. Tidur cukup juga bagian dari menjaga amanah tubuh."
+    },
+    {
+      "no": 16,
+      "style": "B",
+      "id": "aaff3baf-be20-5656-aba8-96af5f5ff608",
+      "title": "Malam milik orang yang rindu",
+      "body": "Rindu bermunajat? Malam ini kesempatannya. Tidur lebih awal supaya rindu itu sempat tersampaikan."
+    },
+    {
+      "no": 17,
+      "style": "A",
+      "id": "b0075222-ad15-525e-be04-6f6f18ec515a",
+      "title": "Tinggalkan grup chat dulu",
+      "body": "Notifikasi grup bisa dibaca besok pagi. Aktifkan mode jangan ganggu dan biarkan pikiran tenang."
+    },
+    {
+      "no": 18,
+      "style": "B",
+      "id": "1568c35d-b562-5000-af62-0c69eed1b9f0",
+      "title": "Lepaskan beban pikiran",
+      "body": "Yang belum selesai hari ini, titipkan dalam doa. Tidur dengan hati yang ringan, {nama}."
+    },
+    {
+      "no": 19,
+      "style": "A",
+      "id": "b19492bc-2646-5db3-9638-b11b0102309e",
+      "title": "Level {level} sedang berjalan",
+      "body": "Langkahmu sejauh ini sudah bagus. Tidur tepat waktu malam ini membantu langkah berikutnya."
+    },
+    {
+      "no": 20,
+      "style": "B",
+      "id": "d5f3cfb6-d299-5118-bfbe-7fc484e3c930",
+      "title": "Sepertiga malam terasa dekat",
+      "body": "Beberapa jam lagi waktu yang istimewa itu tiba. Siapkan tubuhmu dengan tidur sekarang."
+    },
+    {
+      "no": 21,
+      "style": "A",
+      "id": "6f8b320d-a284-58cf-86f7-295c7324ed1d",
+      "title": "Berbaring miring ke kanan",
+      "body": "Rapikan bantal, berbaring miring ke kanan, dan baca doa tidur. Kebiasaan kecil yang menenangkan."
+    },
+    {
+      "no": 22,
+      "style": "B",
+      "id": "9abf0c26-cf5a-510f-b3e7-1bd460a49334",
+      "title": "Untuk keluarga yang kamu doakan",
+      "body": "Nanti malam, sebut nama mereka satu per satu dalam doa. Tidur dulu supaya kuat bangun."
+    },
+    {
+      "no": 23,
+      "style": "A",
+      "id": "1c0d9cc8-b42f-5b0e-a43d-00adb14925c3",
+      "title": "Tidak harus sempurna, {nama}",
+      "body": "Kemarin terlewat? Tidak apa-apa. Malam ini mulai lagi dari tidur yang lebih awal."
+    },
+    {
+      "no": 24,
+      "style": "B",
+      "id": "6ab39d3d-6be8-5b2f-80c6-98ab7ae20b36",
+      "title": "Istiqomah dimulai dari malam ini",
+      "body": "Bukan soal seberapa banyak, tapi seberapa terjaga. Tidur sekarang, lanjutkan kebiasaan baikmu."
+    },
+    {
+      "no": 25,
+      "style": "A",
+      "id": "2cc52dd6-2a7f-5f67-90c7-3d390e2ed347",
+      "title": "Siapkan pakaian untuk bangun",
+      "body": "Taruh sajadah dan baju salat di dekat kasur. Saat alarm bunyi, semua sudah siap."
+    },
+    {
+      "no": 26,
+      "style": "B",
+      "id": "1c9fd452-540e-5606-9c28-9f8a0863f2b1",
+      "title": "Malam yang tenang, hati yang lapang",
+      "body": "Biarkan hari ini selesai di sini. Istirahatlah, nanti malam ada waktu untuk bicara dengan-Nya."
+    },
+    {
+      "no": 27,
+      "style": "A",
+      "id": "836a9c2d-bab5-51bd-87ab-95d1782078a3",
+      "title": "Jam segini, waktunya rebahan",
+      "body": "Bukan rebahan sambil scroll, ya. Simpan HP, pejamkan mata, dan biarkan tubuh pulih."
+    },
+    {
+      "no": 28,
+      "style": "B",
+      "id": "96a6034a-9b33-5345-9345-a75aecee0935",
+      "title": "Besok pagi yang lebih segar",
+      "body": "Tidur cukup malam ini, tahajud di sepertiga malam, lalu Subuh dengan hati yang tenang."
+    },
+    {
+      "no": 29,
+      "style": "A",
+      "id": "3d28a37a-fb9e-570b-99d3-6afdd351e853",
+      "title": "Level {level}, satu malam lagi",
+      "body": "Setiap malam yang kamu jaga itu berarti. Tidur sekarang supaya besok tetap konsisten, {nama}."
+    },
+    {
+      "no": 30,
+      "style": "B",
+      "id": "60bc348b-e3e8-5ed5-a109-3fb55fdd1ee6",
+      "title": "Sampai jumpa di sepertiga malam",
+      "body": "Selamat beristirahat, {nama}. Semoga dibangunkan dengan mudah untuk bermunajat nanti malam."
+    }
+  ]
+}
