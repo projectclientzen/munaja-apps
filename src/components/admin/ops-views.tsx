@@ -104,7 +104,7 @@ function StaffLevelForm({ id, entitlementId, current, onChanged }: { id: string;
   }
   return (
     <form onSubmit={submit} className="flex flex-col gap-3">
-      <Field id={`${id}-level`} label="Level" hint="Level awal baru untuk akun ini.">
+      <Field id={`${id}-level`} label="Level" hint="Langsung berlaku bila sesi malam ini belum diisi. Kalau sudah ada catatan, berlaku mulai sesi berikutnya.">
         <select id={`${id}-level`} className={inputClass} value={level} onChange={(e) => setLevel(Number(e.target.value))}>
           {LEVELS.map((l) => (
             <option key={l.value} value={l.value}>

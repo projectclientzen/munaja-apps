@@ -150,6 +150,32 @@ describe("X8 schema: staff accounts, order tools, level bypass, report exclusion
       );
     });
 
+    it("STAFF-LEVEL-NOW: a level change resets tonight's empty session, and keeps one that has progress", async () => {
+      const r = await ok<{ user_id: string; entitlement: { id: string } }>("admin_staff_create", ["text", "text", "text", "int", "timestamptz"], ["level-now@ngajigaes.test", null, REASON, 3, NOW], superId, SUP);
+      const uid = r.user_id;
+      await pg.query(`update public.profiles set manual_schedule = '{"timezone":"Asia/Jakarta"}'::jsonb where user_id = $1::uuid`, [uid]);
+      const key = (await rows<{ k: string }>(pg, "select app_private.user_active_key($1::uuid, $2::timestamptz)::text as k", [uid, NOW]))[0]!.k;
+      const session = async () =>
+        (await rows<{ id: string }>(pg, "insert into public.night_sessions (user_id, fajr_local_date, timezone, schedule_source, level_number, status) values ($1::uuid, $2::date, 'Asia/Jakarta', 'manual', 3, 'in_progress') returning id::text", [uid, key]))[0]!.id;
+      const count = async () => (await rows(pg, "select 1 from public.night_sessions where user_id = $1::uuid", [uid])).length;
+      await session();
+      const out = await ok<any>("admin_staff_set_level", ["uuid", "int", "text", "timestamptz"], [r.entitlement.id, 1, REASON, NOW], superId, SUP);
+      expect(out.open_sessions_reset).toBe(1);
+      expect(await count()).toBe(0);
+      // With progress recorded, the session stays at its level; the new level waits for the next session.
+      await ok("admin_staff_set_level", ["uuid", "int", "text", "timestamptz"], [r.entitlement.id, 3, REASON, NOW], superId, SUP);
+      const sid = await session();
+      await pg.query("update public.night_sessions set level_number = 3 where id = $1::uuid", [sid]);
+      const def = (await rows<{ id: string }>(pg, "select id::text from public.activity_definitions limit 1"))[0]!.id;
+      await pg.query(
+        "insert into public.session_activities (session_id, user_id, activity_definition_id, activity_config_snapshot, phase, required_for_completion, status) values ($1::uuid, $2::uuid, $3::uuid, '{}'::jsonb, 'night', true, 'done')",
+        [sid, uid, def],
+      );
+      const kept = await ok<any>("admin_staff_set_level", ["uuid", "int", "text", "timestamptz"], [r.entitlement.id, 1, REASON, NOW], superId, SUP);
+      expect(kept.open_sessions_reset).toBe(0);
+      expect(await count()).toBe(1);
+    });
+
     it("STAFF-LEVEL: the chosen starting level drives the dashboard, the level screen and the session, and can be edited", async () => {
       const r = await ok<{ user_id: string; entitlement: { id: string } }>("admin_staff_create", ["text", "text", "text", "int", "timestamptz"], ["level1@ngajigaes.test", null, REASON, 1, NOW], superId, SUP);
       const uid = r.user_id;
